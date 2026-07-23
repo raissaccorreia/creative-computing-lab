@@ -1,75 +1,76 @@
-# React + TypeScript + Vite
+# Creative Computing Lab
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A public lab for small, executable experiments in creative computing—SVG, motion, Canvas, 3D, and WebGPU—as tools for interface, narrative, and understanding, not decoration.
 
-Currently, two official plugins are available:
+Experiments are learning artifacts. They are not production-ready application code.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Purpose
 
-## React Compiler
+Explore visual computing techniques through focused demonstrations that:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- make a principle visible in a few minutes;
+- record performance, accessibility, and limitations honestly;
+- leave behind a small reusable pattern when one earns its place.
 
-## Expanding the ESLint configuration
+## Technologies under investigation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- SVG as interactive interface
+- Motion that explains state change
+- Canvas 2D for higher element volume
+- 3D scenes (WebGL / related toolchains)
+- WebGPU and compute-backed visualization
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## First experiment
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+**Search Flow Explorer** (not implemented yet)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+An interactive SVG representation of:
 
+`query → candidates → filters → ranking → recommendation`
+
+Planned notes live in [`src/demos/search-flow/README.md`](src/demos/search-flow/README.md).
+
+## Principles
+
+- Accessibility (keyboard, contrast, reduced motion, textual equivalents)
+- Performance (load, frame budget, bundle size)
+- Progressive enhancement and clear fallbacks
+- Reusable patterns extracted only when proven
+
+## Current stack
+
+- React 19 + TypeScript
+- Vite
+- ESLint
+- Playwright + `@axe-core/playwright` for end-to-end and accessibility checks
+
+## Commands
+
+```bash
+pnpm install
+pnpm dev
+pnpm lint
+pnpm typecheck
+pnpm test:e2e
+pnpm test:a11y
+pnpm build
+pnpm preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```text
+.
+├── AGENTS.md
+├── README.md
+├── LICENSE
+├── playwright.config.ts
+├── src/
+│   ├── App.tsx
+│   └── demos/search-flow/   # planned first experiment
+└── tests/
 ```
+
+## Status
+
+Stage 0 foundation: public shell, documentation, and validation tooling. The Search Flow Explorer demonstration has not been built yet.
