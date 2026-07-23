@@ -37,6 +37,16 @@ Each experiment should be, at the same time:
 - Hide limitations, negative results, or incompatibilities.
 - Generate generic portfolio pages that distract from the demonstration.
 
+## Neutral public examples
+
+Experiments in this laboratory must stay publicly safe and domain-neutral:
+
+- Use synthetic data and neutral domains.
+- Do not cite companies, clients, or private projects.
+- Do not document strategies, business rules, or competitive applications.
+- Keep adapters, real integrations, and domain decisions outside the laboratory.
+- Prefer public examples based on documents, educational resources, abstract objects, or simulated systems.
+
 ## Minimal public structure
 
 ```text

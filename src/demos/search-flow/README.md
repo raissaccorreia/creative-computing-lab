@@ -1,37 +1,63 @@
 # Search Flow Explorer
 
-Planned first experiment. Not implemented in this foundation stage.
+Interactive SVG demonstration of a search and recommendation pipeline. The
+pipeline is a **simulation** with synthetic educational resources—not a real
+search engine.
 
-## Future goal
+## Phase status
 
-An interactive SVG demonstration of a search and recommendation pipeline so viewers can advance between a few states, select elements, and understand what changed without an external explanation.
+| Phase | Status |
+| --- | --- |
+| A — Static diagram | Done |
+| B — Data and states | Done |
+| C — Interaction | Not started |
+| D — Motion | Not started |
 
-## Planned scope
+## Phase B objective
 
-Visual flow:
+Separate data from presentation with deterministic snapshots and stage
+navigation, still without motion:
 
-`query → candidates → filters → ranking → recommendation`
+`Query → Candidates → Filters → Ranking → Recommendations`
 
-Expected interactions:
+Example query:
 
-- move forward and back across 3–5 states;
-- select elements for a short inline explanation;
-- show what entered, left, gained relevance, or changed position.
+> Introductory guide to accessible SVG, published after 2024, under 15 minutes.
 
-## Principles to demonstrate
+## Data and snapshots
 
-- Semantic, responsive SVG
-- State separated from presentation
-- Motion that explains change
-- Pointer and keyboard interaction
-- `prefers-reduced-motion` support
-- A small reusable pattern for stateful diagrams
+- [`data.ts`](./data.ts) — ~12 neutral synthetic educational resources
+- [`model.ts`](./model.ts) — five explicit snapshots with stable ids, removal
+  reasons, ranking order, and recommendation notes
 
-## Out of scope for this stage
+Candidate identity is stable across stages. Removal reasons and ranking are
+precomputed and inspectable.
 
-- Diagram or interaction implementation
-- Canvas, WebGL, or WebGPU
-- Backend, authentication, or live data
-- AI integrations
-- A published generic library
-- Multiple visual themes
+## Navigation
+
+- Previous / Next controls
+- Visible “n of 5” indicator and stage name
+- Correct disabled limits at the ends
+- `aria-live` announcement of the current step
+- Current stage emphasized in the SVG (stroke + label) and in the textual list
+
+## Visual structure
+
+Five labeled SVG stage groups remain. Content updates from the active snapshot.
+Desktop uses a horizontal composition from **1024px** upward; below that, a
+separate vertical composition is used (not a scaled-down horizontal layout).
+
+## Accessibility decisions
+
+- SVG uses `role="img"` with dynamic `<title>` and `<desc>`
+- Meaning is not conveyed by color alone
+- Visible HTML textual equivalent updates with the snapshot
+- Controls live outside the SVG; nodes are not focusable yet
+
+## Current limitations
+
+- No per-item selection or details panel
+- No animation or `prefers-reduced-motion` behavior
+- No real retrieval algorithm or external API
+
+Those belong to later phases.

@@ -1,21 +1,23 @@
 main {
-  max-width: 40rem;
+  max-width: 68rem;
   margin: 0 auto;
-  padding: 2rem 1.25rem;
+  padding: 2rem 1.25rem 3rem;
 }
 
-h1 {
+.lab-intro {
+  max-width: 40rem;
+}
+
+.lab-intro h1 {
   margin: 0 0 0.75rem;
-  font-size: 1.75rem;
+  font-size: 1.85rem;
   line-height: 1.2;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-p {
-  margin: 0 0 0.75rem;
+.lab-intro p {
+  margin: 0;
   line-height: 1.5;
-}
-
-p:last-child {
-  margin-bottom: 0;
+  color: #3a3a3a;
 }
