@@ -22,13 +22,14 @@ Explore visual computing techniques through focused demonstrations that:
 
 ## First experiment
 
-**Search Flow Explorer** — Phase A static diagram is implemented.
+**Search Flow Explorer** — Phase B (data and states) is implemented.
 
 An SVG representation of:
 
 `query → candidates → filters → ranking → recommendation`
 
-Notes and phase status: [`src/demos/search-flow/README.md`](src/demos/search-flow/README.md).
+Uses synthetic educational resources and deterministic snapshots with stage
+navigation. Notes: [`src/demos/search-flow/README.md`](src/demos/search-flow/README.md).
 
 ## Principles
 
@@ -67,13 +68,13 @@ pnpm preview
 ├── playwright.config.ts
 ├── src/
 │   ├── App.tsx
-│   └── demos/search-flow/   # Search Flow Explorer (Phase A)
+│   └── demos/search-flow/   # Search Flow Explorer (Phase B)
 └── tests/
 ```
 
 ## Status
 
-Phase A of Search Flow Explorer is available: a static, accessible SVG diagram
-of the five-stage pipeline. Data, interaction, and motion are not implemented
-yet. Experiments remain learning artifacts, not production-ready application
-code.
+Phase B of Search Flow Explorer is available: synthetic data, deterministic
+snapshots, and Previous/Next stage navigation on an accessible SVG diagram.
+Item selection and motion are not implemented yet. Experiments remain learning
+artifacts, not production-ready application code.

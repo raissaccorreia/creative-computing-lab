@@ -8,7 +8,7 @@ test('home page has no detectable accessibility violations @a11y', async ({
 
   await expect(
     page.getByRole('img', {
-      name: 'Search flow from query to recommendations',
+      name: /Search flow diagram, step 1 of 5: Query/i,
     }),
   ).toBeVisible()
 
@@ -25,9 +25,25 @@ test('home page has no detectable accessibility violations on mobile @a11y', asy
 
   await expect(
     page.getByRole('img', {
-      name: 'Search flow from query to recommendations',
+      name: /Search flow diagram, step 1 of 5: Query/i,
     }),
   ).toBeVisible()
+
+  const results = await new AxeBuilder({ page }).analyze()
+
+  expect(results.violations).toEqual([])
+})
+
+test('search flow has no detectable accessibility violations after navigation @a11y', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  await expect(page.locator('.search-flow__live')).toContainText(
+    'Step 3 of 5: Filters',
+  )
 
   const results = await new AxeBuilder({ page }).analyze()
 
