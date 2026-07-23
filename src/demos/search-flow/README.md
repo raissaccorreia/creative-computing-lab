@@ -1,37 +1,43 @@
 # Search Flow Explorer
 
-Planned first experiment. Not implemented in this foundation stage.
+Interactive SVG demonstration of a search and recommendation pipeline. Phase A
+is a static diagram only.
 
-## Future goal
+## Phase A objective
 
-An interactive SVG demonstration of a search and recommendation pipeline so viewers can advance between a few states, select elements, and understand what changed without an external explanation.
+Make the sequence understandable from composition alone, before data, controls,
+states, or motion:
 
-## Planned scope
+`Query → Candidates → Filters → Ranking → Recommendations`
 
-Visual flow:
+Example query used in the demo:
 
-`query → candidates → filters → ranking → recommendation`
+> Introductory guide to accessible SVG, published after 2024, under 15 minutes.
 
-Expected interactions:
+## Visual structure
 
-- move forward and back across 3–5 states;
-- select elements for a short inline explanation;
-- show what entered, left, gained relevance, or changed position.
+Five labeled SVG stage groups connected by directional connectors:
 
-## Principles to demonstrate
+1. **Query** — text block and conceptual tokens entering the system
+2. **Candidates** — six symbolic nodes in a wider field
+3. **Filters** — gate shape; some nodes continue, others marked removed
+4. **Ranking** — ordered bars with position indexes
+5. **Recommendations** — three symbolic options, one with moderate emphasis
 
-- Semantic, responsive SVG
-- State separated from presentation
-- Motion that explains change
-- Pointer and keyboard interaction
-- `prefers-reduced-motion` support
-- A small reusable pattern for stateful diagrams
+Desktop uses a horizontal composition. Mobile uses a separate vertical
+composition (not a scaled-down horizontal layout).
 
-## Out of scope for this stage
+## Accessibility decisions
 
-- Diagram or interaction implementation
-- Canvas, WebGL, or WebGPU
-- Backend, authentication, or live data
-- AI integrations
-- A published generic library
-- Multiple visual themes
+- SVG uses `role="img"` with `<title>` and `<desc>`
+- Meaning is not conveyed by color alone (labels, hatch, strike, size)
+- A visible HTML textual equivalent describes the same five steps
+- No focusable controls inside the SVG in this phase
+
+## Current limitations
+
+- No synthetic document collection or scores
+- No stage navigation, selection, or keyboard exploration of nodes
+- No animation or `prefers-reduced-motion` behavior yet
+
+Those belong to later phases (data/states, interaction, then motion).
