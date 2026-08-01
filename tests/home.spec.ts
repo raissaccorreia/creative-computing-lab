@@ -28,6 +28,17 @@ function mobileResource(page: import('@playwright/test').Page, id: string) {
   )
 }
 
+async function countRunningAnimations(page: import('@playwright/test').Page) {
+  return page.locator('.search-flow__visual-layout').evaluate((container) => {
+    const elements = [container, ...Array.from(container.querySelectorAll('*'))]
+    return elements.reduce(
+      (count, element) =>
+        count + element.getAnimations().filter((animation) => animation.playState === 'running').length,
+      0,
+    )
+  })
+}
+
 test('home page smoke', async ({ page }) => {
   await page.goto('/')
 
@@ -250,4 +261,114 @@ test('mobile ranking resources stay inside the ranking panel', async ({ page }) 
       panelBox!.y + panelBox!.height + 1,
     )
   }
+})
+
+test('native motion animates stage changes when reduced motion is not requested', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  await expect
+    .poll(() => countRunningAnimations(page), { timeout: 1000 })
+    .toBeGreaterThan(0)
+})
+
+test('motion implementation animates the same stage transition', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+
+  await expect(page.getByLabel(/Motion — Motion library/i)).toBeVisible()
+  await page.getByLabel(/Motion — Motion library/i).check()
+  await expect(page.getByLabel(/Motion — Motion library/i)).toBeChecked()
+
+  await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByRole('button', { name: 'Next' }).click()
+  await expect(page.locator('.search-flow__live')).toContainText(
+    'Step 3 of 5: Filters',
+  )
+  await expect
+    .poll(() => countRunningAnimations(page), { timeout: 1000 })
+    .toBeGreaterThan(0)
+})
+
+test('motion implementation respects reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  await page.getByLabel(/Motion — Motion library/i).check()
+  await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  await expect(page.locator('.search-flow__live')).toContainText(
+    'Step 3 of 5: Filters',
+  )
+  await expect.poll(() => countRunningAnimations(page)).toBe(0)
+})
+
+test('switching motion implementations preserves stage and selection', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Next' }).click()
+  const resource = desktopResource(page, 'svg-a11y-starter')
+  await resource.click()
+
+  await page.getByLabel(/Motion — Motion library/i).check()
+  await expect(page.locator('.search-flow__live')).toContainText(
+    'Step 2 of 5: Candidates',
+  )
+  await expect(page.getByTestId('selected-resource-title')).toHaveText(
+    'SVG Accessibility Starter Guide',
+  )
+})
+
+test('theme control cycles through light, dark, and system', async ({ page }) => {
+  await page.goto('/')
+  const themeToggle = page.getByRole('button', { name: /Theme: system/i })
+
+  await expect(themeToggle).toHaveAttribute('data-theme-choice', 'system')
+  await themeToggle.click()
+  await expect(page.getByRole('button', { name: /Theme: light/i })).toHaveAttribute(
+    'data-theme-choice',
+    'light',
+  )
+  await page.getByRole('button', { name: /Theme: light/i }).click()
+  await expect(page.getByRole('button', { name: /Theme: dark/i })).toHaveAttribute(
+    'data-theme-choice',
+    'dark',
+  )
+  await page.getByRole('button', { name: /Theme: dark/i }).click()
+  await expect(page.getByRole('button', { name: /Theme: system/i })).toHaveAttribute(
+    'data-theme-choice',
+    'system',
+  )
+})
+
+test('native motion reaches the same state without animations when reduced motion is requested', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  await expect(page.locator('.search-flow__live')).toContainText(
+    'Step 3 of 5: Filters',
+  )
+  await expect.poll(() => countRunningAnimations(page)).toBe(0)
+})
+
+test('native motion can be interrupted without changing the final stage', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  const next = page.getByRole('button', { name: 'Next' })
+  await next.click()
+  await next.click()
+  await next.click()
+
+  await expect(page.locator('.search-flow__live')).toContainText(
+    'Step 4 of 5: Ranking',
+  )
 })

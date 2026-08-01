@@ -4,8 +4,30 @@
   box-sizing: border-box;
 }
 
-html {
+:root {
   color-scheme: light;
+  --page-bg: #ffffff;
+  --page-surface: #f4f4f1;
+  --page-ink: #121212;
+  --page-muted: #3a3a3a;
+  --page-line: #2c2c2c;
+  --page-border: #d8d8d4;
+  --page-accent: #0b6e4f;
+  --page-accent-soft: #d7ebe3;
+  --page-removed: #6b6b6b;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page-bg: #171916;
+  --page-surface: #242a25;
+  --page-ink: #f1f4ef;
+  --page-muted: #b8c0b8;
+  --page-line: #c9d3ca;
+  --page-border: #4a554c;
+  --page-accent: #68d2a5;
+  --page-accent-soft: #214d3d;
+  --page-removed: #a8b0a8;
 }
 
 body {
@@ -14,8 +36,8 @@ body {
   font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
   font-size: 1rem;
   line-height: 1.5;
-  color: #121212;
-  background: #ffffff;
+  color: var(--page-ink);
+  background: var(--page-bg);
 }
 
 #root {

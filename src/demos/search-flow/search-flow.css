@@ -1,18 +1,18 @@
 .search-flow {
-  --flow-ink: #1a1a1a;
-  --flow-muted: #5a5a5a;
-  --flow-line: #2c2c2c;
-  --flow-panel: #f4f4f1;
-  --flow-accent: #0b6e4f;
-  --flow-accent-soft: #d7ebe3;
-  --flow-removed: #6b6b6b;
+  --flow-ink: var(--page-ink);
+  --flow-muted: var(--page-muted);
+  --flow-line: var(--page-line);
+  --flow-panel: var(--page-surface);
+  --flow-accent: var(--page-accent);
+  --flow-accent-soft: var(--page-accent-soft);
+  --flow-removed: var(--page-removed);
   --flow-space: 1.25rem;
 
   display: grid;
   gap: 1.75rem;
   margin-top: 2.5rem;
   padding-top: 2rem;
-  border-top: 1px solid #d8d8d4;
+  border-top: 1px solid var(--page-border);
   color: var(--flow-ink);
 }
 
@@ -32,6 +32,57 @@
   margin: 0 0 1rem;
   color: var(--flow-muted);
   line-height: 1.55;
+}
+
+.search-flow__implementation {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1rem 0 1.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--page-border);
+  background: var(--flow-panel);
+}
+
+.search-flow__implementation-copy,
+.search-flow__implementation-note {
+  margin: 0;
+  color: var(--flow-muted);
+  line-height: 1.5;
+}
+
+.search-flow__implementation-copy strong {
+  color: var(--flow-ink);
+}
+
+.search-flow__implementation-options {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--page-border);
+}
+
+.search-flow__implementation-options legend {
+  padding: 0 0.35rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--flow-accent);
+}
+
+.search-flow__implementation-options label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.search-flow__implementation-options input {
+  margin-top: 0.25rem;
+  accent-color: var(--flow-accent);
 }
 
 .search-flow__query {
@@ -72,7 +123,7 @@
   padding: 0.5rem 0.9rem;
   border: 1px solid var(--flow-line);
   border-radius: 2px;
-  background: #ffffff;
+  background: var(--page-bg);
   color: var(--flow-ink);
   font: inherit;
   font-size: 0.95rem;
@@ -123,7 +174,7 @@
   margin: 0;
   max-width: 40rem;
   padding: 0.75rem 0.9rem;
-  border: 1px solid #d8d8d4;
+  border: 1px solid var(--page-border);
   background: var(--flow-panel);
   line-height: 1.45;
   font-size: 0.95rem;
@@ -236,7 +287,7 @@
 }
 
 .flow-token {
-  fill: #ffffff;
+  fill: var(--page-bg);
   stroke: var(--flow-line);
   stroke-width: 1;
 }
@@ -247,13 +298,13 @@
 }
 
 .flow-node {
-  fill: #ffffff;
+  fill: var(--page-bg);
   stroke: var(--flow-line);
   stroke-width: 1.5;
 }
 
 .flow-node--removed {
-  fill: #e8e8e4;
+  fill: var(--flow-panel);
   stroke: var(--flow-removed);
   stroke-dasharray: 3 2;
 }
@@ -273,7 +324,7 @@
 }
 
 .flow-gate {
-  fill: #ffffff;
+  fill: var(--page-bg);
   stroke: var(--flow-accent);
   stroke-width: 1.75;
 }
@@ -290,7 +341,7 @@
 }
 
 .flow-rec {
-  fill: #ffffff;
+  fill: var(--page-bg);
   stroke: var(--flow-line);
   stroke-width: 1.25;
 }
@@ -359,8 +410,8 @@
 .search-flow__details {
   min-width: 0;
   padding: 1rem;
-  border: 1px solid #d8d8d4;
-  background: #ffffff;
+  border: 1px solid var(--page-border);
+  background: var(--page-bg);
 }
 
 .search-flow__details h3 {
@@ -426,7 +477,7 @@
 .search-flow__score {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #d8d8d4;
+  border-top: 1px solid var(--page-border);
 }
 
 .search-flow__score > p {
