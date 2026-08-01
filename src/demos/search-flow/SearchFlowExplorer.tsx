@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, type KeyboardEvent, type ReactNode } from 'react'
 import { EXAMPLE_QUERY, QUERY_TOKENS, RESOURCES } from './data'
 import {
   FLOW_STAGES,
   STAGE_LABELS,
   getResource,
+  getScoreBreakdown,
+  getSelectableIds,
   getSnapshot,
   type FlowStage,
   type StageSnapshot,
@@ -15,6 +17,8 @@ type DiagramProps = {
   stepIndex: number
   titleId: string
   descId: string
+  selectedId: string | null
+  onSelect: (id: string) => void
 }
 
 const CANDIDATE_LAYOUT_DESKTOP: Record<string, { x: number; y: number }> = {
@@ -81,6 +85,90 @@ function stageClass(stage: FlowStage, current: FlowStage): string {
   return stage === current ? 'flow-stage flow-stage--current' : 'flow-stage'
 }
 
+type ResourceFocusShape =
+  | { type: 'circle'; cx: number; cy: number; r: number }
+  | { type: 'rect'; x: number; y: number; width: number; height: number; rx: number }
+
+function ResourceInteraction({
+  id,
+  interactive,
+  selected,
+  onSelect,
+  focusShape,
+  children,
+}: {
+  id: string
+  interactive: boolean
+  selected: boolean
+  onSelect: (id: string) => void
+  focusShape: ResourceFocusShape
+  children: ReactNode
+}) {
+  if (!interactive) {
+    return <>{children}</>
+  }
+
+  const resource = getResource(id)
+  const handleKeyDown = (event: KeyboardEvent<SVGGElement>) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    onSelect(id)
+  }
+
+  const rings =
+    focusShape.type === 'circle' ? (
+      <>
+        <circle
+          cx={focusShape.cx}
+          cy={focusShape.cy}
+          r={focusShape.r + 4}
+          className="flow-resource-selection-ring"
+        />
+        <circle
+          cx={focusShape.cx}
+          cy={focusShape.cy}
+          r={focusShape.r + 6}
+          className="flow-resource-focus-ring"
+        />
+      </>
+    ) : (
+      <>
+        <rect
+          x={focusShape.x - 3}
+          y={focusShape.y - 3}
+          width={focusShape.width + 6}
+          height={focusShape.height + 6}
+          rx={focusShape.rx + 1}
+          className="flow-resource-selection-ring"
+        />
+        <rect
+          x={focusShape.x - 5}
+          y={focusShape.y - 5}
+          width={focusShape.width + 10}
+          height={focusShape.height + 10}
+          rx={focusShape.rx + 2}
+          className="flow-resource-focus-ring"
+        />
+      </>
+    )
+
+  return (
+    <g
+      className={`flow-resource-mark${selected ? ' flow-resource-mark--selected' : ''}`}
+      data-resource-id={id}
+      role="button"
+      tabIndex={0}
+      aria-label={`Select ${resource.title}`}
+      aria-pressed={selected}
+      onClick={() => onSelect(id)}
+      onKeyDown={handleKeyDown}
+    >
+      {children}
+      {rings}
+    </g>
+  )
+}
+
 function NodeMark({
   cx,
   cy,
@@ -121,7 +209,14 @@ function diagramDesc(snapshot: StageSnapshot): string {
   return snapshot.summary
 }
 
-function DesktopDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) {
+function DesktopDiagram({
+  snapshot,
+  stepIndex,
+  titleId,
+  descId,
+  selectedId,
+  onSelect,
+}: DiagramProps) {
   const current = snapshot.stage
   const showCandidates =
     current === 'candidates' ||
@@ -143,7 +238,7 @@ function DesktopDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) 
     <svg
       className="flow-diagram flow-diagram--desktop"
       viewBox="0 0 1040 300"
-      role="img"
+      role="group"
       aria-labelledby={titleId}
       aria-describedby={descId}
     >
@@ -201,14 +296,22 @@ function DesktopDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) 
               const removed =
                 current === 'filters' && Boolean(snapshot.removedReasons[id])
               return (
-                <NodeMark
+                <ResourceInteraction
                   key={id}
-                  cx={pos.x}
-                  cy={pos.y}
-                  r={9}
-                  removed={removed}
-                  hatchId="flow-hatch-h"
-                />
+                  id={id}
+                  interactive={current === 'candidates'}
+                  selected={selectedId === id}
+                  onSelect={onSelect}
+                  focusShape={{ type: 'circle', cx: pos.x, cy: pos.y, r: 9 }}
+                >
+                  <NodeMark
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={9}
+                    removed={removed}
+                    hatchId="flow-hatch-h"
+                  />
+                </ResourceInteraction>
               )
             })
           : (
@@ -237,14 +340,22 @@ function DesktopDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) 
               const cx = removed ? 560 + col * 18 : 500 + (col % 2) * 18
               const cy = 88 + row * 28
               return (
-                <NodeMark
+                <ResourceInteraction
                   key={id}
-                  cx={cx}
-                  cy={cy}
-                  r={8}
-                  removed={removed}
-                  hatchId="flow-hatch-h"
-                />
+                  id={id}
+                  interactive={current === 'filters'}
+                  selected={selectedId === id}
+                  onSelect={onSelect}
+                  focusShape={{ type: 'circle', cx, cy, r: 8 }}
+                >
+                  <NodeMark
+                    cx={cx}
+                    cy={cy}
+                    r={8}
+                    removed={removed}
+                    hatchId="flow-hatch-h"
+                  />
+                </ResourceInteraction>
               )
             })
           : (
@@ -266,7 +377,21 @@ function DesktopDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) 
               const y = 68 + index * 30
               const width = 110 - index * 14
               return (
-                <g key={id}>
+                <ResourceInteraction
+                  key={id}
+                  id={id}
+                  interactive={current === 'ranking'}
+                  selected={selectedId === id}
+                  onSelect={onSelect}
+                  focusShape={{
+                    type: 'rect',
+                    x: 712,
+                    y,
+                    width: Math.max(36, width),
+                    height: 20,
+                    rx: 2,
+                  }}
+                >
                   <text x="696" y={y + 14} className="flow-rank-index">
                     {index + 1}
                   </text>
@@ -278,7 +403,7 @@ function DesktopDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) 
                     rx="2"
                     className="flow-rank-bar"
                   />
-                </g>
+                </ResourceInteraction>
               )
             })
           : (
@@ -305,7 +430,21 @@ function DesktopDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) 
               const primary = index === 0
               const short = resource.title.split(' ').slice(0, 2).join(' ')
               return (
-                <g key={id}>
+                <ResourceInteraction
+                  key={id}
+                  id={id}
+                  interactive={current === 'recommendations'}
+                  selected={selectedId === id}
+                  onSelect={onSelect}
+                  focusShape={{
+                    type: 'rect',
+                    x: 908,
+                    y,
+                    width: 94,
+                    height: primary ? 36 : 28,
+                    rx: 3,
+                  }}
+                >
                   <rect
                     x="908"
                     y={y}
@@ -322,7 +461,7 @@ function DesktopDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) 
                   >
                     {short.length > 12 ? `${short.slice(0, 11)}…` : short}
                   </text>
-                </g>
+                </ResourceInteraction>
               )
             })
           : (
@@ -335,7 +474,14 @@ function DesktopDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) 
   )
 }
 
-function MobileDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) {
+function MobileDiagram({
+  snapshot,
+  stepIndex,
+  titleId,
+  descId,
+  selectedId,
+  onSelect,
+}: DiagramProps) {
   const current = snapshot.stage
   const showCandidates =
     current === 'candidates' ||
@@ -356,8 +502,8 @@ function MobileDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) {
   return (
     <svg
       className="flow-diagram flow-diagram--mobile"
-      viewBox="0 0 320 980"
-      role="img"
+      viewBox="0 0 320 1040"
+      role="group"
       aria-labelledby={titleId}
       aria-describedby={descId}
     >
@@ -415,14 +561,22 @@ function MobileDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) {
               const removed =
                 current === 'filters' && Boolean(snapshot.removedReasons[id])
               return (
-                <NodeMark
+                <ResourceInteraction
                   key={id}
-                  cx={pos.x}
-                  cy={pos.y}
-                  r={9}
-                  removed={removed}
-                  hatchId="flow-hatch-v"
-                />
+                  id={id}
+                  interactive={current === 'candidates'}
+                  selected={selectedId === id}
+                  onSelect={onSelect}
+                  focusShape={{ type: 'circle', cx: pos.x, cy: pos.y, r: 9 }}
+                >
+                  <NodeMark
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={9}
+                    removed={removed}
+                    hatchId="flow-hatch-v"
+                  />
+                </ResourceInteraction>
               )
             })
           : (
@@ -451,14 +605,22 @@ function MobileDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) {
               const cx = removed ? 180 + col * 30 : 70 + (col % 2) * 28
               const cy = 455 + row * 28
               return (
-                <NodeMark
+                <ResourceInteraction
                   key={id}
-                  cx={cx}
-                  cy={cy}
-                  r={8}
-                  removed={removed}
-                  hatchId="flow-hatch-v"
-                />
+                  id={id}
+                  interactive={current === 'filters'}
+                  selected={selectedId === id}
+                  onSelect={onSelect}
+                  focusShape={{ type: 'circle', cx, cy, r: 8 }}
+                >
+                  <NodeMark
+                    cx={cx}
+                    cy={cy}
+                    r={8}
+                    removed={removed}
+                    hatchId="flow-hatch-v"
+                  />
+                </ResourceInteraction>
               )
             })
           : (
@@ -474,13 +636,27 @@ function MobileDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) {
         <text x="20" y="616" className="flow-stage-label">
           Ranking
         </text>
-        <rect x="20" y="632" width="280" height="140" rx="4" className="flow-panel" />
+        <rect x="20" y="632" width="280" height="196" rx="4" className="flow-panel" />
         {showRanking
           ? snapshot.orderedIds.map((id, index) => {
               const y = 648 + index * 28
               const width = 220 - index * 28
               return (
-                <g key={id}>
+                <ResourceInteraction
+                  key={id}
+                  id={id}
+                  interactive={current === 'ranking'}
+                  selected={selectedId === id}
+                  onSelect={onSelect}
+                  focusShape={{
+                    type: 'rect',
+                    x: 56,
+                    y,
+                    width: Math.max(48, width),
+                    height: 20,
+                    rx: 2,
+                  }}
+                >
                   <text x="36" y={y + 14} className="flow-rank-index">
                     {index + 1}
                   </text>
@@ -492,7 +668,7 @@ function MobileDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) {
                     rx="2"
                     className="flow-rank-bar"
                   />
-                </g>
+                </ResourceInteraction>
               )
             })
           : (
@@ -502,56 +678,84 @@ function MobileDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) {
           )}
       </g>
 
-      <path d="M160 782 V806" className="flow-connector" markerEnd="url(#flow-arrow-v)" />
+      <path d="M160 830 V854" className="flow-connector" markerEnd="url(#flow-arrow-v)" />
 
       <g
         className={stageClass('recommendations', current)}
         data-stage="Recommendations"
       >
-        <text x="20" y="832" className="flow-stage-label">
+        <text x="20" y="880" className="flow-stage-label">
           Recommendations
         </text>
-        <rect x="20" y="848" width="280" height="110" rx="4" className="flow-panel" />
+        <rect x="20" y="896" width="280" height="110" rx="4" className="flow-panel" />
         {showRecommendations
           ? snapshot.highlightedIds.map((id, index) => {
               const resource = getResource(id)
               const primary = index === 0
               if (primary) {
                 return (
-                  <g key={id}>
+                  <ResourceInteraction
+                    key={id}
+                    id={id}
+                    interactive={current === 'recommendations'}
+                    selected={selectedId === id}
+                    onSelect={onSelect}
+                    focusShape={{
+                      type: 'rect',
+                      x: 40,
+                      y: 914,
+                      width: 240,
+                      height: 32,
+                      rx: 3,
+                    }}
+                  >
                     <rect
                       x="40"
-                      y="866"
+                      y="914"
                       width="240"
                       height="32"
                       rx="3"
                       className="flow-rec flow-rec--primary"
                     />
-                    <text x="160" y="887" textAnchor="middle" className="flow-rec-label">
+                    <text x="160" y="935" textAnchor="middle" className="flow-rec-label">
                       {resource.title.length > 34
                         ? `${resource.title.slice(0, 33)}…`
                         : resource.title}
                     </text>
-                  </g>
+                  </ResourceInteraction>
                 )
               }
               const x = index === 1 ? 40 : 168
               return (
-                <g key={id}>
-                  <rect x={x} y="906" width="112" height="28" rx="3" className="flow-rec" />
+                <ResourceInteraction
+                  key={id}
+                  id={id}
+                  interactive={current === 'recommendations'}
+                  selected={selectedId === id}
+                  onSelect={onSelect}
+                  focusShape={{
+                    type: 'rect',
+                    x,
+                    y: 954,
+                    width: 112,
+                    height: 28,
+                    rx: 3,
+                  }}
+                >
+                  <rect x={x} y="954" width="112" height="28" rx="3" className="flow-rec" />
                   <text
                     x={x + 56}
-                    y="925"
+                    y="973"
                     textAnchor="middle"
                     className="flow-rec-label"
                   >
                     {resource.title.split(' ').slice(0, 2).join(' ')}
                   </text>
-                </g>
+                </ResourceInteraction>
               )
             })
           : (
-            <text x="160" y="905" textAnchor="middle" className="flow-empty-hint">
+            <text x="160" y="953" textAnchor="middle" className="flow-empty-hint">
               waiting
             </text>
           )}
@@ -560,13 +764,131 @@ function MobileDiagram({ snapshot, stepIndex, titleId, descId }: DiagramProps) {
   )
 }
 
+const PUBLISHED_DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'medium',
+  timeZone: 'UTC',
+})
+
+function formatPublishedDate(publishedAt: string): string {
+  return PUBLISHED_DATE_FORMATTER.format(new Date(`${publishedAt}T00:00:00Z`))
+}
+
+function formatScore(value: number): string {
+  return `${Math.round(value * 100)}%`
+}
+
+function ResourceDetails({
+  stage,
+  snapshot,
+  selectedId,
+}: {
+  stage: FlowStage
+  snapshot: StageSnapshot
+  selectedId: string | null
+}) {
+  const resource = selectedId ? getResource(selectedId) : null
+  const rankingSnapshot = getSnapshot('ranking')
+  const rankPosition = resource
+    ? rankingSnapshot.orderedIds.indexOf(resource.id) + 1
+    : 0
+  const score = resource ? getScoreBreakdown(resource) : null
+  const removalReason = resource ? snapshot.removedReasons[resource.id] : undefined
+
+  return (
+    <aside className="search-flow__details" aria-labelledby="resource-details-heading">
+      <h3 id="resource-details-heading">Resource details</h3>
+      {!resource ? (
+        <p className="search-flow__details-empty" data-testid="resource-details-empty">
+          Select a resource in the active stage to inspect its data and explanation.
+        </p>
+      ) : (
+        <div data-testid="resource-details-content">
+          <p className="search-flow__details-stage">{STAGE_LABELS[stage]}</p>
+          <h4 data-testid="selected-resource-title">{resource.title}</h4>
+          <dl className="search-flow__metadata">
+            <div>
+              <dt>Topics</dt>
+              <dd>{resource.topics.join(', ')}</dd>
+            </div>
+            <div>
+              <dt>Level</dt>
+              <dd>{resource.level}</dd>
+            </div>
+            <div>
+              <dt>Published</dt>
+              <dd>{formatPublishedDate(resource.publishedAt)}</dd>
+            </div>
+            <div>
+              <dt>Duration</dt>
+              <dd>{resource.durationMinutes} minutes</dd>
+            </div>
+          </dl>
+
+          <p className="search-flow__details-label">Stage explanation</p>
+          <p data-testid="resource-explanation">
+            {stage === 'candidates'
+              ? 'This resource is included in the broad initial synthetic pool before hard constraints are applied.'
+              : stage === 'filters'
+                ? removalReason
+                  ? `Removed: ${removalReason}.`
+                  : 'Kept: this resource meets the topic, publication date, duration, and level constraints.'
+                : stage === 'ranking'
+                  ? `Position ${rankPosition} of ${rankingSnapshot.orderedIds.length} in a simulated deterministic ranking.`
+                  : stage === 'recommendations'
+                    ? `${snapshot.recommendationNotes[resource.id]} This is one explained option, not an absolute answer.`
+                    : 'The query stage has no selectable resources.'}
+          </p>
+
+          {stage === 'ranking' || stage === 'recommendations' ? (
+            <div className="search-flow__score" data-testid="resource-score">
+              <p className="search-flow__details-label">Simulated score</p>
+              <p>
+                Total: <strong>{score ? score.total.toFixed(3) : '—'}</strong>
+              </p>
+              <ul>
+                <li>Query match × 0.40: {score ? formatScore(score.queryMatch) : '—'}</li>
+                <li>Beginner fit × 0.25: {score ? formatScore(score.beginnerFit) : '—'}</li>
+                <li>Recency × 0.20: {score ? formatScore(score.recency) : '—'}</li>
+                <li>Data quality × 0.15: {score ? formatScore(score.dataQuality) : '—'}</li>
+              </ul>
+              <p className="search-flow__details-note">
+                The score is deterministic simulation data, not a live ranking engine.
+              </p>
+            </div>
+          ) : null}
+        </div>
+      )}
+    </aside>
+  )
+}
+
 export function SearchFlowExplorer() {
   const [stepIndex, setStepIndex] = useState(0)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const stage = FLOW_STAGES[stepIndex]!
   const snapshot = getSnapshot(stage)
+  const selectableIds = getSelectableIds(stage)
+  const effectiveSelectedId = selectedId && selectableIds.includes(selectedId) ? selectedId : null
   const stepNumber = stepIndex + 1
   const totalSteps = FLOW_STAGES.length
   const liveMessage = `Step ${stepNumber} of ${totalSteps}: ${snapshot.label}. ${snapshot.summary}`
+  const selectionMessage = effectiveSelectedId
+    ? `${getResource(effectiveSelectedId).title} selected.`
+    : 'No resource selected in the active stage.'
+
+  const goToStep = (nextIndex: number) => {
+    const boundedIndex = Math.max(0, Math.min(totalSteps - 1, nextIndex))
+    const nextStage = FLOW_STAGES[boundedIndex]!
+    setStepIndex(boundedIndex)
+    setSelectedId((currentId) =>
+      currentId && getSelectableIds(nextStage).includes(currentId) ? currentId : null,
+    )
+  }
+
+  const handleSelect = (id: string) => {
+    if (!selectableIds.includes(id)) return
+    setSelectedId(id)
+  }
 
   return (
     <section className="search-flow" aria-labelledby="search-flow-heading">
@@ -574,8 +896,8 @@ export function SearchFlowExplorer() {
         <h2 id="search-flow-heading">Search Flow Explorer</h2>
         <p className="search-flow__lede">
           A data-driven diagram of how a query becomes a small set of explained
-          recommendations. Phase B uses synthetic resources and deterministic
-          snapshots—still without motion or item selection.
+          recommendations. Phase C uses synthetic resources and deterministic
+          snapshots with accessible resource inspection—still without motion.
         </p>
         <p className="search-flow__query">
           <span className="search-flow__query-label">Example query</span>
@@ -587,7 +909,7 @@ export function SearchFlowExplorer() {
         <button
           type="button"
           className="search-flow__nav-button"
-          onClick={() => setStepIndex((index) => Math.max(0, index - 1))}
+          onClick={() => goToStep(stepIndex - 1)}
           disabled={stepIndex === 0}
         >
           Previous
@@ -601,9 +923,7 @@ export function SearchFlowExplorer() {
         <button
           type="button"
           className="search-flow__nav-button"
-          onClick={() =>
-            setStepIndex((index) => Math.min(totalSteps - 1, index + 1))
-          }
+          onClick={() => goToStep(stepIndex + 1)}
           disabled={stepIndex === totalSteps - 1}
         >
           Next
@@ -613,19 +933,33 @@ export function SearchFlowExplorer() {
       <p className="search-flow__live" aria-live="polite">
         {liveMessage}
       </p>
+      <p className="search-flow__selection-live" aria-live="polite">
+        {selectionMessage}
+      </p>
 
-      <div className="search-flow__diagram" data-testid="search-flow-diagram">
-        <DesktopDiagram
+      <div className="search-flow__visual-layout">
+        <div className="search-flow__diagram" data-testid="search-flow-diagram">
+          <DesktopDiagram
+            snapshot={snapshot}
+            stepIndex={stepIndex}
+            titleId="flow-desktop-title"
+            descId="flow-desktop-desc"
+            selectedId={effectiveSelectedId}
+            onSelect={handleSelect}
+          />
+          <MobileDiagram
+            snapshot={snapshot}
+            stepIndex={stepIndex}
+            titleId="flow-mobile-title"
+            descId="flow-mobile-desc"
+            selectedId={effectiveSelectedId}
+            onSelect={handleSelect}
+          />
+        </div>
+        <ResourceDetails
+          stage={stage}
           snapshot={snapshot}
-          stepIndex={stepIndex}
-          titleId="flow-desktop-title"
-          descId="flow-desktop-desc"
-        />
-        <MobileDiagram
-          snapshot={snapshot}
-          stepIndex={stepIndex}
-          titleId="flow-mobile-title"
-          descId="flow-mobile-desc"
+          selectedId={effectiveSelectedId}
         />
       </div>
 

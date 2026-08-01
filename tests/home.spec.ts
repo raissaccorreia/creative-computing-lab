@@ -16,6 +16,18 @@ async function assertNoHorizontalOverflow(page: import('@playwright/test').Page)
   expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
 }
 
+function desktopResource(page: import('@playwright/test').Page, id: string) {
+  return page.locator(
+    `.flow-diagram--desktop [role="button"][data-resource-id="${id}"]`,
+  )
+}
+
+function mobileResource(page: import('@playwright/test').Page, id: string) {
+  return page.locator(
+    `.flow-diagram--mobile [role="button"][data-resource-id="${id}"]`,
+  )
+}
+
 test('home page smoke', async ({ page }) => {
   await page.goto('/')
 
@@ -30,7 +42,7 @@ test('home page smoke', async ({ page }) => {
     page.getByRole('heading', { level: 2, name: 'Search Flow Explorer' }),
   ).toBeVisible()
 
-  const diagram = page.getByRole('img', {
+  const diagram = page.getByRole('group', {
     name: /Search flow diagram, step 1 of 5: Query/i,
   })
   await expect(diagram).toBeVisible()
@@ -99,7 +111,7 @@ test('search flow stage navigation and snapshots', async ({ page }) => {
     'Best balance of topic match',
   )
   await expect(
-    page.getByRole('img', {
+    page.getByRole('group', {
       name: /Search flow diagram, step 5 of 5: Recommendations/i,
     }),
   ).toBeVisible()
@@ -127,4 +139,115 @@ test('home has no horizontal overflow on tablet', async ({ page }) => {
   await assertNoHorizontalOverflow(page)
   await expect(page.locator('.flow-diagram--mobile')).toBeVisible()
   await expect(page.locator('.flow-diagram--desktop')).toBeHidden()
+})
+
+test('search flow resource inspection works with keyboard and preserves selection rules', async ({
+  page,
+}) => {
+  await page.goto('/')
+
+  await expect(page.getByTestId('resource-details-empty')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Next' }).click()
+  const candidateControls = page.locator(
+    '.flow-diagram--desktop [role="button"][data-resource-id]',
+  )
+  await expect(candidateControls).toHaveCount(12)
+
+  const firstCandidate = desktopResource(page, 'svg-a11y-starter')
+  await firstCandidate.focus()
+  await page.keyboard.press('Enter')
+  await expect(firstCandidate).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByTestId('selected-resource-title')).toHaveText(
+    'SVG Accessibility Starter Guide',
+  )
+  await expect(page.getByTestId('resource-explanation')).toContainText(
+    'broad initial synthetic pool',
+  )
+
+  const pointerCandidate = desktopResource(page, 'keyboard-svg-paths')
+  await pointerCandidate.click()
+  await expect(pointerCandidate).toHaveAttribute('aria-pressed', 'true')
+
+  const scrollBeforeSpace = await page.evaluate(() => window.scrollY)
+  const secondCandidate = desktopResource(page, 'title-desc-patterns')
+  await secondCandidate.focus()
+  await page.keyboard.press(' ')
+  await expect(secondCandidate).toHaveAttribute('aria-pressed', 'true')
+  const scrollAfterSpace = await page.evaluate(() => window.scrollY)
+  expect(scrollAfterSpace).toBe(scrollBeforeSpace)
+
+  await page.getByRole('button', { name: 'Next' }).click()
+  await expect(desktopResource(page, 'title-desc-patterns')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+
+  const removedResource = desktopResource(page, 'old-svg-primer')
+  await removedResource.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByTestId('resource-explanation')).toContainText(
+    'Published before 2024',
+  )
+
+  await page.getByRole('button', { name: 'Next' }).click()
+  await expect(page.getByTestId('resource-details-empty')).toBeVisible()
+  await expect(desktopResource(page, 'old-svg-primer')).toHaveCount(0)
+
+  const rankedResource = desktopResource(page, 'svg-a11y-starter')
+  await rankedResource.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByTestId('resource-score')).toContainText('Query match')
+  await page.getByRole('button', { name: 'Next' }).click()
+  await expect(desktopResource(page, 'svg-a11y-starter')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await expect(page.getByTestId('resource-explanation')).toContainText(
+    'one explained option',
+  )
+})
+
+test('search flow resource inspection works in the vertical composition', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  await expect(
+    page.locator('.flow-diagram--mobile [role="button"][data-resource-id]'),
+  ).toHaveCount(12)
+
+  const resource = mobileResource(page, 'svg-a11y-starter')
+  await resource.focus()
+  await page.keyboard.press('Enter')
+  await expect(resource).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByTestId('selected-resource-title')).toHaveText(
+    'SVG Accessibility Starter Guide',
+  )
+})
+
+test('mobile ranking resources stay inside the ranking panel', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+
+  for (let index = 0; index < 3; index += 1) {
+    await page.getByRole('button', { name: 'Next' }).click()
+  }
+
+  const rankingStage = page.locator('.flow-diagram--mobile [data-stage="Ranking"]')
+  const panel = rankingStage.locator('.flow-panel')
+  const resources = rankingStage.locator('[role="button"][data-resource-id]')
+  await expect(resources).toHaveCount(6)
+
+  const panelBox = await panel.boundingBox()
+  expect(panelBox).not.toBeNull()
+  for (let index = 0; index < (await resources.count()); index += 1) {
+    const resourceBox = await resources.nth(index).boundingBox()
+    expect(resourceBox).not.toBeNull()
+    expect(resourceBox!.y + resourceBox!.height).toBeLessThanOrEqual(
+      panelBox!.y + panelBox!.height + 1,
+    )
+  }
 })

@@ -35,9 +35,27 @@ export const STAGE_LABELS: Record<FlowStage, string> = {
   recommendations: 'Recommendations',
 }
 
-function totalScore(resource: Resource): number {
+export type ScoreBreakdown = {
+  queryMatch: number
+  beginnerFit: number
+  recency: number
+  dataQuality: number
+  total: number
+}
+
+export function getScoreBreakdown(resource: Resource): ScoreBreakdown {
   const { queryMatch, beginnerFit, recency, dataQuality } = resource.scores
-  return queryMatch * 0.4 + beginnerFit * 0.25 + recency * 0.2 + dataQuality * 0.15
+  return {
+    queryMatch,
+    beginnerFit,
+    recency,
+    dataQuality,
+    total: queryMatch * 0.4 + beginnerFit * 0.25 + recency * 0.2 + dataQuality * 0.15,
+  }
+}
+
+function totalScore(resource: Resource): number {
+  return getScoreBreakdown(resource).total
 }
 
 const ALL_IDS = RESOURCES.map((resource) => resource.id)
@@ -133,6 +151,21 @@ export const STAGE_SNAPSHOTS: Record<FlowStage, StageSnapshot> = {
 
 export function getSnapshot(stage: FlowStage): StageSnapshot {
   return STAGE_SNAPSHOTS[stage]
+}
+
+export function getSelectableIds(stage: FlowStage): string[] {
+  switch (stage) {
+    case 'query':
+      return []
+    case 'candidates':
+      return STAGE_SNAPSHOTS.candidates.visibleIds
+    case 'filters':
+      return STAGE_SNAPSHOTS.filters.visibleIds
+    case 'ranking':
+      return STAGE_SNAPSHOTS.ranking.orderedIds
+    case 'recommendations':
+      return STAGE_SNAPSHOTS.recommendations.highlightedIds
+  }
 }
 
 export function getResource(id: string): Resource {

@@ -7,7 +7,7 @@ test('home page has no detectable accessibility violations @a11y', async ({
   await page.goto('/')
 
   await expect(
-    page.getByRole('img', {
+    page.getByRole('group', {
       name: /Search flow diagram, step 1 of 5: Query/i,
     }),
   ).toBeVisible()
@@ -24,7 +24,7 @@ test('home page has no detectable accessibility violations on mobile @a11y', asy
   await page.goto('/')
 
   await expect(
-    page.getByRole('img', {
+    page.getByRole('group', {
       name: /Search flow diagram, step 1 of 5: Query/i,
     }),
   ).toBeVisible()
