@@ -22,7 +22,8 @@ Explore visual computing techniques through focused demonstrations that:
 
 ## First experiment
 
-**Search Flow Explorer** — Phase C (accessible resource inspection) is implemented.
+**Search Flow Explorer** — Phase D compares Native and Motion implementations
+for accessible state-change animation.
 
 An SVG representation of:
 
@@ -69,14 +70,15 @@ pnpm preview
 ├── playwright.config.ts
 ├── src/
 │   ├── App.tsx
-│   └── demos/search-flow/   # Search Flow Explorer (Phase C)
+│   └── demos/search-flow/   # Search Flow Explorer (Phase D)
 └── tests/
 ```
 
 ## Status
 
-Phase C of Search Flow Explorer is available: synthetic data, deterministic
-snapshots, Previous/Next stage navigation, keyboard-accessible resource
-selection, and stage-specific details outside the SVG. Motion is not implemented
-yet. Experiments remain learning artifacts, not production-ready application
-code.
+Phase D of Search Flow Explorer uses one public demo with an accessible
+Native/Motion selector. Native is the default baseline; Motion is the
+intentional dependency under comparison. The same data, layout, accessibility
+rules, and reduced-motion fallback are used in both modes. The theme control in
+the lab shell cycles through light, dark, and system preferences. Experiments
+remain learning artifacts, not production-ready application code.

@@ -1,4 +1,12 @@
-import { useState, type KeyboardEvent, type ReactNode } from 'react'
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+  type RefObject,
+} from 'react'
+import { animate as motionAnimate } from 'motion'
 import { EXAMPLE_QUERY, QUERY_TOKENS, RESOURCES } from './data'
 import {
   FLOW_STAGES,
@@ -104,11 +112,7 @@ function ResourceInteraction({
   focusShape: ResourceFocusShape
   children: ReactNode
 }) {
-  if (!interactive) {
-    return <>{children}</>
-  }
-
-  const resource = getResource(id)
+  const resource = interactive ? getResource(id) : null
   const handleKeyDown = (event: KeyboardEvent<SVGGElement>) => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
@@ -154,19 +158,173 @@ function ResourceInteraction({
 
   return (
     <g
-      className={`flow-resource-mark${selected ? ' flow-resource-mark--selected' : ''}`}
+      className={`flow-resource-mark${interactive && selected ? ' flow-resource-mark--selected' : ''}`}
       data-resource-id={id}
-      role="button"
-      tabIndex={0}
-      aria-label={`Select ${resource.title}`}
-      aria-pressed={selected}
-      onClick={() => onSelect(id)}
-      onKeyDown={handleKeyDown}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={resource ? `Select ${resource.title}` : undefined}
+      aria-pressed={interactive ? selected : undefined}
+      onClick={interactive ? () => onSelect(id) : undefined}
+      onKeyDown={interactive ? handleKeyDown : undefined}
     >
       {children}
-      {rings}
+      {interactive ? rings : null}
     </g>
   )
+}
+
+type MotionRect = {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+type MotionImplementation = 'native' | 'motion'
+
+type FlowAnimation = {
+  cancel: () => void
+}
+
+type FlowKeyframe = {
+  opacity?: number
+  transform?: string
+}
+
+function useFlowMotion(
+  containerRef: RefObject<HTMLDivElement | null>,
+  stage: FlowStage,
+  implementation: MotionImplementation,
+) {
+  const previousRectsRef = useRef(new Map<string, MotionRect>())
+  const previousImplementationRef = useRef<MotionImplementation | null>(null)
+  const animationsRef = useRef<FlowAnimation[]>([])
+
+  useLayoutEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const cancelAnimations = () => {
+      for (const animation of animationsRef.current) animation.cancel()
+      animationsRef.current = []
+    }
+
+    cancelAnimations()
+
+    const elements = Array.from(
+      container.querySelectorAll<SVGGElement>('[data-resource-id]'),
+    )
+    const occurrenceById = new Map<string, number>()
+    const nextRects = new Map<string, MotionRect>()
+    const keysByElement = new Map<SVGGElement, string>()
+
+    for (const element of elements) {
+      const id = element.dataset.resourceId
+      if (!id) continue
+      const occurrence = occurrenceById.get(id) ?? 0
+      occurrenceById.set(id, occurrence + 1)
+      const key = `${id}:${occurrence}`
+      const rect = element.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0) continue
+      keysByElement.set(element, key)
+      nextRects.set(key, {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      })
+    }
+
+    const previousRects = previousRectsRef.current
+    const reducedMotionQuery = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    )
+    const reducedMotion = reducedMotionQuery.matches
+
+    const handleReducedMotionChange = (event: MediaQueryListEvent) => {
+      if (event.matches) cancelAnimations()
+    }
+    reducedMotionQuery.addEventListener('change', handleReducedMotionChange)
+
+    const implementationChanged = previousImplementationRef.current !== implementation
+
+    const animateElement = (
+      element: SVGGElement,
+      keyframes: FlowKeyframe[],
+      durationMs: number,
+    ): FlowAnimation => {
+      if (implementation === 'motion') {
+        const motionKeyframes: Record<string, number[] | string[]> = {}
+        const opacity = keyframes
+          .map((keyframe) => keyframe.opacity)
+          .filter((value): value is number => value !== undefined)
+        const transform = keyframes
+          .map((keyframe) => keyframe.transform)
+          .filter((value): value is string => value !== undefined)
+        if (opacity.length > 0) motionKeyframes.opacity = opacity
+        if (transform.length > 0) motionKeyframes.transform = transform
+        const controls = motionAnimate(element, motionKeyframes, {
+          duration: durationMs / 1000,
+          ease: 'easeOut',
+        })
+        return { cancel: () => controls.stop() }
+      }
+
+      const animation = element.animate(keyframes, {
+        duration: durationMs,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        fill: 'both',
+      })
+      return { cancel: () => animation.cancel() }
+    }
+
+    if (previousRects.size > 0 && !reducedMotion && !implementationChanged) {
+      for (const element of elements) {
+        const key = keysByElement.get(element)
+        if (!key) continue
+        const previous = previousRects.get(key)
+        const current = nextRects.get(key)
+        if (!current) continue
+
+        if (!previous) {
+          animationsRef.current.push(
+            animateElement(
+              element,
+              [
+                { opacity: 0, transform: 'scale(0.98)' },
+                { opacity: 1, transform: 'scale(1)' },
+              ],
+              180,
+            ),
+          )
+          continue
+        }
+
+        const deltaX = previous.left - current.left
+        const deltaY = previous.top - current.top
+        if (Math.abs(deltaX) < 0.5 && Math.abs(deltaY) < 0.5) continue
+
+        animationsRef.current.push(
+          animateElement(
+            element,
+            [
+              { transform: `translate(${deltaX}px, ${deltaY}px)` },
+              { transform: 'translate(0, 0)' },
+            ],
+            280,
+          ),
+        )
+      }
+    }
+
+    previousRectsRef.current = nextRects
+    previousImplementationRef.current = implementation
+
+    return () => {
+      reducedMotionQuery.removeEventListener('change', handleReducedMotionChange)
+      cancelAnimations()
+    }
+  }, [containerRef, implementation, stage])
 }
 
 function NodeMark({
@@ -865,6 +1023,9 @@ function ResourceDetails({
 export function SearchFlowExplorer() {
   const [stepIndex, setStepIndex] = useState(0)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [motionImplementation, setMotionImplementation] =
+    useState<MotionImplementation>('native')
+  const visualLayoutRef = useRef<HTMLDivElement>(null)
   const stage = FLOW_STAGES[stepIndex]!
   const snapshot = getSnapshot(stage)
   const selectableIds = getSelectableIds(stage)
@@ -890,15 +1051,60 @@ export function SearchFlowExplorer() {
     setSelectedId(id)
   }
 
+  useFlowMotion(visualLayoutRef, stage, motionImplementation)
+
   return (
     <section className="search-flow" aria-labelledby="search-flow-heading">
       <header className="search-flow__header">
         <h2 id="search-flow-heading">Search Flow Explorer</h2>
         <p className="search-flow__lede">
           A data-driven diagram of how a query becomes a small set of explained
-          recommendations. Phase C uses synthetic resources and deterministic
-          snapshots with accessible resource inspection—still without motion.
+          recommendations. Phase D keeps the same synthetic data, layout,
+          accessibility contract, and deterministic state transitions while
+          comparing two motion implementations.
         </p>
+        <div className="search-flow__implementation" data-testid="motion-implementation">
+          <p className="search-flow__implementation-copy">
+            <strong>Experiment context.</strong> Native uses the browser Web
+            Animations API with no Motion dependency. Motion uses the Motion
+            library for the same transitions. The comparison makes the
+            cost-benefit trade-off visible: bundle weight and dependency cost
+            versus animation ergonomics and reusable controls.
+          </p>
+          <fieldset className="search-flow__implementation-options">
+            <legend>Animation implementation</legend>
+            <label>
+              <input
+                type="radio"
+                name="motion-implementation"
+                value="native"
+                checked={motionImplementation === 'native'}
+                onChange={() => setMotionImplementation('native')}
+              />
+              <span>
+                <strong>Native</strong> — Web Animations API, no Motion runtime
+              </span>
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="motion-implementation"
+                value="motion"
+                checked={motionImplementation === 'motion'}
+                onChange={() => setMotionImplementation('motion')}
+              />
+              <span>
+                <strong>Motion</strong> — Motion library with the same feature
+                contract
+              </span>
+            </label>
+          </fieldset>
+          <p className="search-flow__implementation-note">
+            Switching the implementation does not change the data, selected
+            resource, responsive layout, keyboard behavior, or reduced-motion
+            fallback.
+          </p>
+        </div>
         <p className="search-flow__query">
           <span className="search-flow__query-label">Example query</span>
           <q>{EXAMPLE_QUERY}</q>
@@ -937,7 +1143,7 @@ export function SearchFlowExplorer() {
         {selectionMessage}
       </p>
 
-      <div className="search-flow__visual-layout">
+      <div ref={visualLayoutRef} className="search-flow__visual-layout">
         <div className="search-flow__diagram" data-testid="search-flow-diagram">
           <DesktopDiagram
             snapshot={snapshot}

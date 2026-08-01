@@ -402,17 +402,17 @@ motion vocabulary with it. The native and Motion versions must use:
 - the same reduced-motion information state;
 - the same final geometry and visual hierarchy.
 
-Before exposing the second implementation, stop and ask the repository owner to
-choose how the comparison should appear. Present these bounded options:
+The approved presentation for this experiment is a small accessible
+`Animation implementation` control in the main demo. It keeps the comparison
+visible to a learner without duplicating the public page or hiding either
+implementation. The control presents these options:
 
-1. a small accessible `Motion implementation` control in the main demo;
-2. a separate comparison view in the same repository;
-3. an internal test harness with one selected implementation in the public demo.
+1. **Native** — browser Web Animations API, no Motion dependency (default);
+2. **Motion** — Motion library with the same feature contract.
 
-Do not choose the public interaction model implicitly. Regardless of the chosen
-presentation, both approaches must remain executable and measurable. If the
-chosen presentation allows live switching, preserve the selected stage and
-resource when switching implementations.
+Both approaches remain executable and measurable. The live switch preserves
+the selected stage and resource; it never changes data, layout, focus rules,
+or reduced-motion information.
 
 Keep both implementations narrow and readable. Share the deterministic state
 and geometry, but do not force animation-specific code into an abstraction that
@@ -467,6 +467,19 @@ In reduced-motion mode:
 - do not replace spatial motion with flashing or another animated effect;
 - cancel any running native or Motion animation if the preference changes while
   the page is open.
+
+## D4. Implementation decision
+
+Phase D is implemented as one public Search Flow Explorer with a visible
+`Animation implementation` selector. Native is the default because it keeps
+the learning baseline dependency-free; Motion is available as the explicit
+comparison case. The selector does not fork the feature: both modes share the
+same state, geometry, data, accessibility behavior, and reduced-motion rules.
+
+The lab shell also includes a compact theme control that cycles through
+`system`, `light`, and `dark`. It changes document-level color variables and
+persists the user's choice locally; it does not alter the experiment's data or
+animation comparison.
 
 A separate user-facing motion toggle is not required in this phase. Do not add
 one unless later usability evidence justifies it.

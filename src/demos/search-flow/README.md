@@ -11,7 +11,7 @@ search engine.
 | A — Static diagram | Done |
 | B — Data and states | Done |
 | C — Interaction | Done |
-| D — Motion | Not started |
+| D — Motion | Done |
 
 ## Phase B objective
 
@@ -62,6 +62,20 @@ Recommendations expose the exact synthetic recommendation note.
 Only the active stage's resource representation is interactive. Contextual
 representations in other stages are not duplicate keyboard stops.
 
+## Phase D motion comparison
+
+The demo exposes one accessible `Animation implementation` control with two
+options:
+
+- **Native** (the default): browser Web Animations API, with no Motion runtime.
+- **Motion**: the Motion library, using the same bounded transitions.
+
+Both options share the same deterministic snapshots, stable resource ids,
+responsive SVG layout, selection behavior, and reduced-motion fallback. The
+explanatory copy makes the cost-benefit experiment explicit: Native minimizes
+dependency and bundle cost, while Motion provides a higher-level animation
+API. Switching options preserves the current stage and selected resource.
+
 ## Accessibility decisions
 
 - SVG uses a named group with dynamic `<title>` and `<desc>` while interactive
@@ -74,7 +88,8 @@ representations in other stages are not duplicate keyboard stops.
 
 ## Current limitations
 
-- No animation or `prefers-reduced-motion` behavior
+- The comparison measures implementation behavior qualitatively; it is not a
+  production benchmark
 - No real retrieval algorithm or external API
 
 Those belong to later phases.
