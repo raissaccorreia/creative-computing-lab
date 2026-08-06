@@ -1,94 +1,49 @@
 # Creative Computing Lab
 
-A public lab for small, executable experiments in creative computing. We use
-SVG, motion, Canvas, 3D, and WebGPU to make interface ideas visible and
-testable.
+This repository is a public lab for small experiments in visual computing and
+interface design. Each experiment asks one clear question, produces something
+people can run, and records what was learned.
 
-Experiments are learning artifacts. They are not production-ready application code.
+It is used to develop practical patterns for websites, apps, and platform
+features without turning every experiment into a product or a generic library.
 
-## Purpose
+## Start here
 
-We build focused demonstrations that:
+The investigation notes and reusable working method are in [`docs/`](docs/):
 
-- show one clear idea in a few minutes;
-- record what worked, what did not, and what we measured;
-- leave a small pattern that another project can reuse when it earns its place.
+- [`docs/README.md`](docs/README.md) — map of the documentation;
+- [`docs/search-flow-phases-c-d-e.md`](docs/search-flow-phases-c-d-e.md) — the
+  first investigation, written as one article from Phase A through Phase E;
+- [`docs/search-flow-results.md`](docs/search-flow-results.md) — test results,
+  measurements, limits, and final decision;
+- [`docs/implementation-standard.md`](docs/implementation-standard.md) — the
+  default method for planning, building, and reviewing future work.
 
-The repository's default build and review method is in
-[`docs/implementation-standard.md`](docs/implementation-standard.md). It is
-written for future experiments as well as websites, apps, and platform
-features.
+## Current experiment
 
-## Technologies under investigation
+**Search Flow Explorer** is a small SVG demo that shows how a query becomes
+explained recommendations. It uses synthetic data, accessible HTML details,
+responsive layouts, and a Native/Motion comparison.
 
-- SVG as interactive interface
-- Motion that explains state change
-- Canvas 2D for higher element volume
-- 3D scenes (WebGL / related toolchains)
-- WebGPU and compute-backed visualization
+The implementation lives in [`src/demos/search-flow/`](src/demos/search-flow/).
 
-## First experiment
-
-**Search Flow Explorer** — a small experiment about how a query becomes
-explained recommendations, and how motion can clarify that change.
-
-An SVG representation of:
-
-`query → candidates → filters → ranking → recommendation`
-
-Uses synthetic educational resources and deterministic snapshots with stage
-navigation, keyboard selection, and an HTML details panel. Notes:
-[`src/demos/search-flow/README.md`](src/demos/search-flow/README.md).
-
-## Principles
-
-- Accessibility (keyboard, contrast, reduced motion, textual equivalents)
-- Performance (load, frame budget, bundle size)
-- Progressive enhancement and clear fallbacks
-- Reusable patterns extracted only when proven
-
-## Current stack
-
-- React 19 + TypeScript
-- Vite
-- Motion (Phase D comparison)
-- ESLint
-- Playwright + `@axe-core/playwright` for end-to-end and accessibility checks
-
-## Commands
+## Run it
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
+```
+
+Useful checks:
+
+```bash
 pnpm lint
 pnpm typecheck
+pnpm build
 pnpm test:e2e
 pnpm test:a11y
 pnpm test:visual
-pnpm build
-pnpm preview
 ```
 
-## Project structure
-
-```text
-.
-├── AGENTS.md
-├── README.md
-├── LICENSE
-├── playwright.config.ts
-├── src/
-│   ├── App.tsx
-│   └── demos/search-flow/   # Search Flow Explorer (Phase E)
-└── tests/
-```
-
-## Status
-
-Phase E is complete for Search Flow Explorer. The repository now includes
-canonical visual snapshots, responsive and console evidence, a Native/Motion
-long-task profile, and the measured results in
-[`docs/search-flow-results.md`](docs/search-flow-results.md). The final
-decision is to incorporate the tested pattern selectively in small,
-explainable SVG interfaces. Experiments remain learning artifacts, not
-production-ready application code.
+All public examples use neutral synthetic data. This repository is a learning
+lab, not production-ready application code.
