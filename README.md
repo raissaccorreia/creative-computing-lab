@@ -44,6 +44,7 @@ navigation, keyboard selection, and an HTML details panel. Notes:
 
 - React 19 + TypeScript
 - Vite
+- Motion (Phase D comparison)
 - ESLint
 - Playwright + `@axe-core/playwright` for end-to-end and accessibility checks
 
@@ -56,6 +57,7 @@ pnpm lint
 pnpm typecheck
 pnpm test:e2e
 pnpm test:a11y
+pnpm test:visual
 pnpm build
 pnpm preview
 ```
@@ -70,15 +72,16 @@ pnpm preview
 ├── playwright.config.ts
 ├── src/
 │   ├── App.tsx
-│   └── demos/search-flow/   # Search Flow Explorer (Phase D)
+│   └── demos/search-flow/   # Search Flow Explorer (Phase E)
 └── tests/
 ```
 
 ## Status
 
-Phase D of Search Flow Explorer uses one public demo with an accessible
-Native/Motion selector. Native is the default baseline; Motion is the
-intentional dependency under comparison. The same data, layout, accessibility
-rules, and reduced-motion fallback are used in both modes. The theme control in
-the lab shell cycles through light, dark, and system preferences. Experiments
-remain learning artifacts, not production-ready application code.
+Phase E is complete for Search Flow Explorer. The repository now includes
+canonical visual snapshots, responsive and console evidence, a Native/Motion
+long-task profile, and the measured results in
+[`docs/search-flow-results.md`](docs/search-flow-results.md). The final
+decision is to incorporate the tested pattern selectively in small,
+explainable SVG interfaces. Experiments remain learning artifacts, not
+production-ready application code.

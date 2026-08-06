@@ -12,6 +12,7 @@ search engine.
 | B — Data and states | Done |
 | C — Interaction | Done |
 | D — Motion | Done |
+| E — Evidence and reuse decision | Done |
 
 ## Phase B objective
 
@@ -76,6 +77,15 @@ explanatory copy makes the cost-benefit experiment explicit: Native minimizes
 dependency and bundle cost, while Motion provides a higher-level animation
 API. Switching options preserves the current stage and selected resource.
 
+## Phase E evidence
+
+Four canonical visual states are checked by Playwright under
+`tests/visual.spec.ts-snapshots/`. The final evidence also covers the 390px,
+820px, 1024px, and 1280px viewports, a 200% CSS-zoom approximation, console
+errors, and separate Native/Motion long-task profiles. See
+[`docs/search-flow-results.md`](../../../docs/search-flow-results.md) for the
+environment, bundle measurements, limitations, and reuse decision.
+
 ## Accessibility decisions
 
 - SVG uses a named group with dynamic `<title>` and `<desc>` while interactive
@@ -91,5 +101,7 @@ API. Switching options preserves the current stage and selected resource.
 - The comparison measures implementation behavior qualitatively; it is not a
   production benchmark
 - No real retrieval algorithm or external API
+- Visual snapshots and performance evidence describe this local Chromium run;
+  they do not certify every browser, device, screen reader, or dataset volume
 
 Those belong to later phases.

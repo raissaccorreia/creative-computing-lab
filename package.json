@@ -10,6 +10,8 @@
     "typecheck": "tsc -b",
     "test:e2e": "playwright test",
     "test:a11y": "playwright test --grep @a11y",
+    "test:visual": "playwright test tests/visual.spec.ts",
+    "test:visual:update": "playwright test tests/visual.spec.ts --update-snapshots",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -555,6 +555,12 @@ Stop after this gate and report the result before starting Phase E.
 
 # Phase E — Validation, evidence, and reusable conclusion
 
+The completed evidence record lives in
+[`docs/search-flow-results.md`](search-flow-results.md). It records the
+observed local environment, canonical visual snapshots, performance profile,
+accessibility limitations, and the final reuse decision; this specification
+remains the acceptance checklist rather than a copy of those results.
+
 ## Question
 
 Can another developer understand the result, verify it, and reuse the principle
