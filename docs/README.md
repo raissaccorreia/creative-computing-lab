@@ -11,6 +11,11 @@ short orientation; the decisions and reusable methods live here.
 - [`search-flow-results.md`](search-flow-results.md) — the concrete evidence:
   screenshots, checks, measurements, limits, and the result of the experiment.
 
+## Foundation
+
+- [`phase-0-visual-foundation.md`](phase-0-visual-foundation.md) — the visual
+  system, typography, validation gates, and sequence for future investigations.
+
 ## Repository method
 
 - [`implementation-standard.md`](implementation-standard.md) — the shared

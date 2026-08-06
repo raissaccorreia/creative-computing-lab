@@ -2,34 +2,37 @@
   --flow-ink: var(--page-ink);
   --flow-muted: var(--page-muted);
   --flow-line: var(--page-line);
-  --flow-panel: var(--page-surface);
+  --flow-panel: var(--page-surface-raised);
   --flow-accent: var(--page-accent);
+  --flow-accent-strong: var(--page-accent-strong);
   --flow-accent-soft: var(--page-accent-soft);
   --flow-removed: var(--page-removed);
-  --flow-space: 1.25rem;
 
   display: grid;
-  gap: 1.75rem;
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--page-border);
+  gap: clamp(1.5rem, 3vw, 2.75rem);
+  margin-top: clamp(2rem, 5vw, 4rem);
+  padding-top: 0;
   color: var(--flow-ink);
 }
 
 .search-flow__header {
-  max-width: 40rem;
+  max-width: var(--text-measure);
+  margin: 0 auto;
+  text-align: center;
 }
 
 .search-flow__header h2 {
   margin: 0 0 0.5rem;
-  font-size: 1.35rem;
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
+  color: var(--page-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.6rem);
+  font-weight: 560;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
 }
 
 .search-flow__lede {
-  margin: 0 0 1rem;
+  margin: 0 auto 1rem;
   color: var(--flow-muted);
   line-height: 1.55;
 }
@@ -37,9 +40,10 @@
 .search-flow__implementation {
   display: grid;
   gap: 0.8rem;
-  margin: 1rem 0 1.25rem;
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--page-border);
+  margin: 1.5rem 0 1.75rem;
+  padding: 1rem 0;
+  border-top: 2px solid var(--flow-accent);
+  border-bottom: 1px solid var(--page-border);
   background: var(--flow-panel);
 }
 
@@ -58,18 +62,19 @@
   display: grid;
   gap: 0.55rem;
   margin: 0;
-  padding: 0.75rem;
+  padding: 0.85rem 1rem;
   border: 1px solid var(--page-border);
+  background: var(--page-bg);
 }
 
 .search-flow__implementation-options legend {
   padding: 0 0.35rem;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: 0.78rem;
   font-weight: 650;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--flow-accent);
+  color: var(--flow-accent-strong);
 }
 
 .search-flow__implementation-options label {
@@ -87,7 +92,8 @@
 
 .search-flow__query {
   margin: 0;
-  padding: 0.85rem 1rem;
+  max-width: var(--text-measure);
+  padding: 0.95rem 1.1rem;
   border-left: 3px solid var(--flow-accent);
   background: var(--flow-panel);
   line-height: 1.5;
@@ -96,12 +102,12 @@
 .search-flow__query-label {
   display: block;
   margin-bottom: 0.35rem;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--flow-accent);
+  color: var(--flow-accent-strong);
 }
 
 .search-flow__query q {
@@ -110,29 +116,36 @@
 }
 
 .search-flow__controls {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto minmax(0, 12rem) auto;
   align-items: center;
-  gap: 0.75rem 1rem;
-  max-width: 40rem;
+  column-gap: 0.75rem;
+  width: min(100%, 34rem);
+  margin: 0 auto;
+  text-align: center;
 }
 
 .search-flow__nav-button {
   appearance: none;
+  color-scheme: light;
   margin: 0;
-  padding: 0.5rem 0.9rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1rem;
   border: 1px solid var(--flow-line);
-  border-radius: 2px;
-  background: var(--page-bg);
-  color: var(--flow-ink);
-  font: inherit;
+  border-radius: 0.35rem;
+  background-color: var(--page-surface-raised);
+  color: var(--page-control-ink);
+  font-family: var(--font-display);
   font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
 }
 
 .search-flow__nav-button:hover:not(:disabled) {
-  border-color: var(--flow-accent);
-  color: var(--flow-accent);
+  border-color: var(--flow-accent-strong);
+  background-color: var(--flow-accent-soft);
+  color: var(--flow-accent-strong);
 }
 
 .search-flow__nav-button:focus-visible {
@@ -141,7 +154,10 @@
 }
 
 .search-flow__nav-button:disabled {
-  opacity: 0.45;
+  opacity: 1;
+  border-color: var(--page-border);
+  background-color: var(--page-surface);
+  color: var(--page-control-muted);
   cursor: not-allowed;
 }
 
@@ -150,10 +166,9 @@
   flex-direction: column;
   gap: 0.15rem;
   margin: 0;
-  min-width: 8rem;
-  flex: 1;
+  min-width: 0;
   text-align: center;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-display);
 }
 
 .search-flow__step-count {
@@ -161,7 +176,7 @@
   font-weight: 650;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--flow-accent);
+  color: var(--flow-accent-strong);
 }
 
 .search-flow__step-name {
@@ -171,8 +186,8 @@
 }
 
 .search-flow__live {
-  margin: 0;
-  max-width: 40rem;
+  width: min(100%, var(--text-measure));
+  margin: 0 auto;
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--page-border);
   background: var(--flow-panel);
@@ -182,7 +197,11 @@
 
 .search-flow__diagram {
   width: 100%;
+  min-width: 0;
   overflow-x: hidden;
+  border-top: 1px solid var(--page-border);
+  border-bottom: 1px solid var(--page-border);
+  background: var(--page-surface);
 }
 
 .search-flow__visual-layout {
@@ -216,7 +235,7 @@
 }
 
 .flow-resource-selection-ring {
-  stroke: var(--flow-accent);
+  stroke: var(--flow-accent-strong);
   stroke-width: 2.5;
   stroke-dasharray: 2 2;
 }
@@ -251,24 +270,24 @@
 }
 
 .flow-stage--current .flow-panel {
-  stroke: var(--flow-accent);
+  stroke: var(--flow-accent-strong);
   stroke-width: 2.25;
 }
 
 .flow-stage--current .flow-stage-label {
-  fill: var(--flow-accent);
+  fill: var(--flow-accent-strong);
 }
 
 .flow-empty-hint {
   fill: var(--flow-muted);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: 11px;
   font-style: italic;
 }
 
 .flow-stage-label {
   fill: var(--flow-ink);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 650;
   letter-spacing: 0.02em;
@@ -279,7 +298,7 @@
 .flow-rank-index,
 .flow-rec-label {
   fill: var(--flow-ink);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-display);
 }
 
 .flow-query-line {
@@ -298,7 +317,7 @@
 }
 
 .flow-node {
-  fill: var(--page-bg);
+  fill: var(--page-surface-raised);
   stroke: var(--flow-line);
   stroke-width: 1.5;
 }
@@ -324,14 +343,14 @@
 }
 
 .flow-gate {
-  fill: var(--page-bg);
-  stroke: var(--flow-accent);
+  fill: var(--page-surface-raised);
+  stroke: var(--flow-accent-strong);
   stroke-width: 1.75;
 }
 
 .flow-rank-bar {
   fill: var(--flow-accent-soft);
-  stroke: var(--flow-accent);
+  stroke: var(--flow-accent-strong);
   stroke-width: 1.25;
 }
 
@@ -341,14 +360,14 @@
 }
 
 .flow-rec {
-  fill: var(--page-bg);
+  fill: var(--page-surface-raised);
   stroke: var(--flow-line);
   stroke-width: 1.25;
 }
 
 .flow-rec--primary {
   fill: var(--flow-accent-soft);
-  stroke: var(--flow-accent);
+  stroke: var(--flow-accent-strong);
   stroke-width: 2;
 }
 
@@ -368,7 +387,7 @@
 }
 
 .search-flow__equivalent {
-  max-width: 40rem;
+  max-width: var(--text-measure);
 }
 
 .search-flow__equivalent h3 {
@@ -400,7 +419,7 @@
 }
 
 .search-flow__pipeline li[aria-current='step'] strong {
-  color: var(--flow-accent);
+  color: var(--flow-accent-strong);
 }
 
 .search-flow__equivalent ol:last-child {
@@ -409,9 +428,12 @@
 
 .search-flow__details {
   min-width: 0;
-  padding: 1rem;
+  width: min(100%, 52rem);
+  justify-self: center;
+  padding: clamp(1rem, 2vw, 1.5rem);
   border: 1px solid var(--page-border);
-  background: var(--page-bg);
+  border-top: 2px solid var(--flow-accent);
+  background: var(--page-surface-raised);
 }
 
 .search-flow__details h3 {
@@ -436,8 +458,8 @@
 .search-flow__details-stage,
 .search-flow__details-label {
   margin: 0;
-  color: var(--flow-accent);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: var(--flow-accent-strong);
+  font-family: var(--font-display);
   font-size: 0.75rem;
   font-weight: 650;
   letter-spacing: 0.04em;
@@ -508,6 +530,12 @@
 
 @media (min-width: 1024px) {
   .search-flow__visual-layout {
-    grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.8fr);
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-flow__nav-button {
+    transition: none;
   }
 }
