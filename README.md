@@ -16,6 +16,8 @@ The investigation notes and reusable working method are in [`docs/`](docs/):
   first investigation, written as one article from Phase A through Phase E;
 - [`docs/search-flow-results.md`](docs/search-flow-results.md) — test results,
   measurements, limits, and final decision;
+- [`docs/phase-0-visual-foundation.md`](docs/phase-0-visual-foundation.md) —
+  visual system decisions and the future investigation sequence;
 - [`docs/implementation-standard.md`](docs/implementation-standard.md) — the
   default method for planning, building, and reviewing future work.
 

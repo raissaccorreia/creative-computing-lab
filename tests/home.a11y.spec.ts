@@ -11,7 +11,6 @@ test('home page has no detectable accessibility violations @a11y', async ({
       name: /Search flow diagram, step 1 of 5: Query/i,
     }),
   ).toBeVisible()
-
   const results = await new AxeBuilder({ page }).analyze()
 
   expect(results.violations).toEqual([])
@@ -28,6 +27,30 @@ test('home page has no detectable accessibility violations on mobile @a11y', asy
       name: /Search flow diagram, step 1 of 5: Query/i,
     }),
   ).toBeVisible()
+
+  const results = await new AxeBuilder({ page }).analyze()
+
+  expect(results.violations).toEqual([])
+})
+
+test('home page has no detectable accessibility violations in dark theme @a11y', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('creative-computing-lab-theme', 'dark')
+  })
+  await page.goto('/')
+
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await expect(
+    page.getByRole('group', {
+      name: /Search flow diagram, step 1 of 5: Query/i,
+    }),
+  ).toBeVisible()
+  await expect(page.locator('.theme-toggle')).toHaveCSS(
+    'background-color',
+    'rgb(22, 28, 31)',
+  )
 
   const results = await new AxeBuilder({ page }).analyze()
 
