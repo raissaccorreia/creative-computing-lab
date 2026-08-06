@@ -1,12 +1,14 @@
-# Search Flow Explorer — Phase E results
+# Search Flow Explorer — what we learned
 
 Date of measurement: 2026-08-06
 
-This document records the observed result of the Search Flow Explorer
-experiment. It is evidence for this repository, not a universal benchmark or
-a claim of production readiness.
+This is the short record of what we built, tested, and learned. The numbers
+describe this local run. They are not a promise for every device and do not
+make the demo production-ready.
 
-## Validation summary
+It follows the repository's [working standard](implementation-standard.md).
+
+## What we checked
 
 The following commands passed on the Phase E branch:
 
@@ -18,12 +20,11 @@ pnpm test:e2e
 pnpm test:a11y
 ```
 
-The full E2E run contains 25 passing tests: the existing flow behavior, four
-canonical visual comparisons, one Native/Motion long-task profile, and three
-responsive/console evidence checks. The explicit accessibility command passes
-three axe checks.
+The full E2E run has 25 passing tests. It covers the flow behavior, four visual
+comparisons, a Native/Motion performance check, and three responsive/console
+checks. The separate accessibility command passes three axe checks.
 
-Canonical screenshots are stored in
+Reference screenshots are stored in
 `tests/visual.spec.ts-snapshots/`:
 
 1. Candidates, desktop, with `SVG Accessibility Starter Guide` selected;
@@ -32,15 +33,15 @@ Canonical screenshots are stored in
 3. Ranking, mobile, with a selected resource and score details;
 4. Recommendations, desktop, with `SVG Accessibility Starter Guide` selected.
 
-Capture conditions use synthetic deterministic data, a light color scheme,
-reduced motion, fixed viewport sizes, and `animations: 'disabled'`. Review a
-visual change before updating snapshots. The deliberate update command is:
+The screenshots use fixed synthetic data, a light color scheme, reduced motion,
+fixed viewport sizes, and `animations: 'disabled'`. Review a visual change
+before updating them. The deliberate update command is:
 
 ```bash
 pnpm test:visual:update
 ```
 
-## Performance and bundle evidence
+## Performance and bundle check
 
 Environment:
 
@@ -56,24 +57,23 @@ Build output:
 | JavaScript | 282,425 bytes | 88,093 bytes |
 | CSS | 9,410 bytes | 2,367 bytes |
 
-The production bundle remains under the Phase E budgets of 100 kB gzip for
-JavaScript and 20 kB gzip for CSS. The Motion implementation is the intentional
-dependency in this combined build; the earlier Native-only build was smaller,
-so this total includes the cost of making the comparison executable in the
-public demo.
+The production bundle is under the project limits of 100 kB gzip for
+JavaScript and 20 kB gzip for CSS. Motion is included on purpose so we can
+compare it with Native in the same demo. The Native-only build was smaller, so
+the extra size is a real trade-off, not a free improvement.
 
-The browser profile observes stage changes separately for Native and Motion:
+We also checked stage changes separately for Native and Motion:
 
 | Implementation | Long-task entries | Maximum duration | Total duration |
 | --- | ---: | ---: | ---: |
 | Native | 0 | 0 ms | 0 ms |
 | Motion | 0 | 0 ms | 0 ms |
 
-The Long Tasks API was supported in the observed browser. Zero entries means
-that no JavaScript long task was observed during this local run; it does not
-prove that every device or content volume will behave identically.
+The browser supported the Long Tasks API. We saw no long tasks in this run.
+That is a good local result, but it does not prove that every device or larger
+dataset will behave the same way.
 
-## Accessibility and responsive evidence
+## Accessibility and screen-size checks
 
 - Keyboard selection, Enter/Space activation, focus indication, selection
   persistence, and interruption behavior remain covered by the existing E2E
@@ -87,23 +87,20 @@ prove that every device or content volume will behave identically.
   audit.
 - No console errors or page errors were observed during the complete flow.
 - No horizontal overflow was observed at 390px, 820px, 1024px, or 1280px.
-- The main content remained measurable and within the viewport in the test's
-  200% CSS-zoom approximation. A real assistive-technology and browser-zoom
-  review remains a human follow-up, not something this test can certify.
+- The main content stayed measurable and within the viewport in the test's 200%
+  CSS-zoom approximation. A real browser-zoom and screen-reader review still
+  needs a person; this test cannot certify it.
 
-## Comparison observations
+## Native and Motion: the practical difference
 
-Native minimizes application dependency and bundle cost while using the
-browser Web Animations API directly. Motion adds a deliberate runtime
-dependency and a higher-level animation API. In this bounded experiment, both
-implementations share the same data, geometry, final information state,
-selection model, keyboard behavior, and reduced-motion fallback. The existing
-tests also confirm that switching implementation preserves the current stage
-and selected resource.
+Native keeps the dependency list and bundle smaller by using the browser's Web
+Animations API directly. Motion adds a dependency, but gives us a higher-level
+animation API. In this experiment, both modes use the same data, layout, final
+state, keyboard behavior, and reduced-motion fallback. Switching modes also
+keeps the current stage and selected resource.
 
-The comparison is qualitative rather than a product benchmark: it does not
-measure maintainers' development time, a screen-reader study, or performance at
-large dataset volumes.
+We did not measure development time, run a screen-reader study, or test large
+datasets. Those are limits of this experiment.
 
 ## Reusable principle
 
@@ -116,17 +113,17 @@ structured data
 → explanatory motion with a reduced-motion equivalent
 ```
 
-Reusable parts are the snapshot model, stable-id continuity, selection rules,
-active-stage-only SVG semantics, HTML details boundary, and the small motion
+Reusable parts are the snapshot model, stable ids, selection rules,
+active-stage-only SVG controls, the HTML details boundary, and the small motion
 vocabulary with interruption and reduced-motion rules.
 
-The educational dataset, ranking weights, fixed coordinates, five-stage flow,
-and 1024px breakpoint are experiment-specific. SVG should not be assumed for
-large datasets without a new volume and interaction test.
+The educational data, ranking weights, fixed coordinates, five-stage flow, and
+1024px breakpoint belong only to this demo. Do not assume SVG is the right
+renderer for large datasets without testing it.
 
 ## Decision
 
-**Incorporate.** Reuse this pattern selectively for small, explainable SVG
-interfaces where stable identity and an HTML equivalent matter. Keep Native as
-the low-cost baseline and add Motion only when its higher-level controls justify
-the dependency for the next experiment.
+**Incorporate.** Reuse this pattern selectively for small SVG interfaces where
+stable identity and an HTML equivalent matter. Keep Native as the low-cost
+starting point. Add Motion only when its higher-level controls are worth the
+extra dependency.

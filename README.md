@@ -1,16 +1,23 @@
 # Creative Computing Lab
 
-A public lab for small, executable experiments in creative computing—SVG, motion, Canvas, 3D, and WebGPU—as tools for interface, narrative, and understanding, not decoration.
+A public lab for small, executable experiments in creative computing. We use
+SVG, motion, Canvas, 3D, and WebGPU to make interface ideas visible and
+testable.
 
 Experiments are learning artifacts. They are not production-ready application code.
 
 ## Purpose
 
-Explore visual computing techniques through focused demonstrations that:
+We build focused demonstrations that:
 
-- make a principle visible in a few minutes;
-- record performance, accessibility, and limitations honestly;
-- leave behind a small reusable pattern when one earns its place.
+- show one clear idea in a few minutes;
+- record what worked, what did not, and what we measured;
+- leave a small pattern that another project can reuse when it earns its place.
+
+The repository's default build and review method is in
+[`docs/implementation-standard.md`](docs/implementation-standard.md). It is
+written for future experiments as well as websites, apps, and platform
+features.
 
 ## Technologies under investigation
 
@@ -22,8 +29,8 @@ Explore visual computing techniques through focused demonstrations that:
 
 ## First experiment
 
-**Search Flow Explorer** — Phase D compares Native and Motion implementations
-for accessible state-change animation.
+**Search Flow Explorer** — a small experiment about how a query becomes
+explained recommendations, and how motion can clarify that change.
 
 An SVG representation of:
 

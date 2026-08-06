@@ -11,6 +11,11 @@ Each experiment should be, at the same time:
 - a public artifact understandable by other developers;
 - a recorded experiment with results, limitations, and a decision.
 
+The shared implementation standard is [`docs/implementation-standard.md`](docs/implementation-standard.md).
+Use it when planning new websites, apps, platform features, or visual
+experiments. It is the repository's default method for choosing scope,
+technology, accessibility work, validation, and reuse.
+
 ## Agents must
 
 - Keep one problem, one primary demonstration, and one success criterion per experiment.

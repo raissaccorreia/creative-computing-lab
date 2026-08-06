@@ -1,17 +1,20 @@
 # Search Flow Explorer — Phases C, D, and E
 
-## Purpose of this specification
+## What this file is
 
-This document is the implementation contract for completing the first Creative
-Computing Lab experiment. Implement the phases in order and stop at every phase
-gate. Do not combine the three phases into one unreviewable change.
+This is a step-by-step checklist for the first Creative Computing Lab
+experiment. Complete C, then D, then E. Stop at each phase gate so every change
+can be reviewed on its own.
 
-The experiment has one purpose: explain how a synthetic query becomes
-candidates, passes through hard filters, receives a deterministic ranking, and
-ends as a small set of explained recommendations.
+The demo shows one simple story: a synthetic query becomes candidates, filters
+remove some of them, the rest are ranked, and a few explained recommendations
+remain.
 
-The experiment is not a search engine and must never imply that it uses live
-retrieval, personalization, machine learning, or artificial intelligence.
+This is not a search engine. It must never suggest that it uses live retrieval,
+personalization, machine learning, or artificial intelligence.
+
+For the wider repository working method, use
+[`docs/implementation-standard.md`](implementation-standard.md).
 
 ## Read before changing code
 
@@ -28,9 +31,9 @@ Read these files completely before implementation:
 9. `tests/home.a11y.spec.ts`
 10. `playwright.config.ts`
 
-The Obsidian Vault contains planning and learning notes. The implementation
-agent working from this repository must not edit the Vault. Repository code,
-public documentation, tests, and recorded results belong in this repository.
+Planning notes live outside this repository. Do not edit them from an
+implementation task. Code, public documentation, tests, and results belong
+here.
 
 ## Current baseline
 
@@ -60,6 +63,8 @@ Installing the browser is environment setup, not a new application dependency.
 ### Required
 
 - Keep all visible copy and public documentation in American English.
+- Prefer short sentences, familiar words, and direct instructions over academic
+  language.
 - Keep the dataset synthetic, deterministic, and domain-neutral.
 - Preserve stable resource ids across stages.
 - Keep important explanations in HTML outside the SVG.
@@ -117,16 +122,16 @@ The dependency policy is also progressive:
 If any out-of-scope technology appears necessary, stop and write down the
 observed limitation. Do not expand scope without approval.
 
-## Execution protocol
+## How to work on a phase
 
 For each phase:
 
-1. Implement only that phase.
-2. Add or update tests for its behavior.
-3. Run the phase validation commands.
-4. Fix failures caused by the phase.
-5. Update phase status and limitations in repository documentation.
-6. Stop and report changed files, validation results, and remaining limits.
+1. Change only that phase.
+2. Add or update tests for the behavior.
+3. Run the validation commands.
+4. Fix failures caused by the change.
+5. Update the status and limitations in the docs.
+6. Stop and report the files, checks, and remaining limits.
 
 Do not start the next phase while the current phase has a failing acceptance
 criterion. Existing unrelated failures must be identified precisely and must

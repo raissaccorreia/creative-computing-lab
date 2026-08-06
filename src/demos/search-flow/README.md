@@ -1,8 +1,7 @@
 # Search Flow Explorer
 
-Interactive SVG demonstration of a search and recommendation pipeline. The
-pipeline is a **simulation** with synthetic educational resources—not a real
-search engine.
+Interactive SVG demo of a search and recommendation flow. It uses synthetic
+educational resources, so it is a simulation—not a real search engine.
 
 ## Phase status
 
@@ -14,10 +13,10 @@ search engine.
 | D — Motion | Done |
 | E — Evidence and reuse decision | Done |
 
-## Phase B objective
+## How the demo works
 
-Separate data from presentation with deterministic snapshots and stage
-navigation, still without motion:
+The data and the screen are kept separate. The flow moves through five fixed
+states:
 
 `Query → Candidates → Filters → Ranking → Recommendations`
 
@@ -25,14 +24,14 @@ Example query:
 
 > Introductory guide to accessible SVG, published after 2024, under 15 minutes.
 
-## Data and snapshots
+## Data and states
 
-- [`data.ts`](./data.ts) — ~12 neutral synthetic educational resources
-- [`model.ts`](./model.ts) — five explicit snapshots with stable ids, removal
+- [`data.ts`](./data.ts) — about 12 neutral synthetic resources
+- [`model.ts`](./model.ts) — five explicit states with stable ids, removal
   reasons, ranking order, and recommendation notes
 
-Candidate identity is stable across stages. Removal reasons and ranking are
-precomputed and inspectable.
+Each candidate keeps the same id as it moves through the flow. Removal reasons
+and ranking are fixed so the result can be tested again.
 
 ## Navigation
 
@@ -65,21 +64,19 @@ representations in other stages are not duplicate keyboard stops.
 
 ## Phase D motion comparison
 
-The demo exposes one accessible `Animation implementation` control with two
-options:
+The demo has one accessible `Animation implementation` control:
 
 - **Native** (the default): browser Web Animations API, with no Motion runtime.
 - **Motion**: the Motion library, using the same bounded transitions.
 
-Both options share the same deterministic snapshots, stable resource ids,
-responsive SVG layout, selection behavior, and reduced-motion fallback. The
-explanatory copy makes the cost-benefit experiment explicit: Native minimizes
-dependency and bundle cost, while Motion provides a higher-level animation
-API. Switching options preserves the current stage and selected resource.
+Both options use the same states, stable ids, layout, selection behavior, and
+reduced-motion fallback. Native keeps the demo smaller. Motion gives a
+higher-level animation API. Switching options keeps the current stage and
+selected resource.
 
 ## Phase E evidence
 
-Four canonical visual states are checked by Playwright under
+Four reference visual states are checked by Playwright under
 `tests/visual.spec.ts-snapshots/`. The final evidence also covers the 390px,
 820px, 1024px, and 1280px viewports, a 200% CSS-zoom approximation, console
 errors, and separate Native/Motion long-task profiles. See
@@ -88,8 +85,8 @@ environment, bundle measurements, limitations, and reuse decision.
 
 ## Accessibility decisions
 
-- SVG uses a named group with dynamic `<title>` and `<desc>` while interactive
-  resource descendants remain available to assistive technology
+- SVG has a dynamic `<title>` and `<desc>` while interactive resources remain
+  available to assistive technology
 - Meaning is not conveyed by color alone
 - Visible HTML textual equivalent updates with the snapshot
 - Details and score explanations live outside the SVG
@@ -104,4 +101,4 @@ environment, bundle measurements, limitations, and reuse decision.
 - Visual snapshots and performance evidence describe this local Chromium run;
   they do not certify every browser, device, screen reader, or dataset volume
 
-Those belong to later phases.
+Those are outside this demo's scope.
