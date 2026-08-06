@@ -12,7 +12,7 @@ features without turning every experiment into a product or a generic library.
 The investigation notes and reusable working method are in [`docs/`](docs/):
 
 - [`docs/README.md`](docs/README.md) — map of the documentation;
-- [`docs/search-flow-phases-c-d-e.md`](docs/search-flow-phases-c-d-e.md) — the
+- [`docs/search-flow-explorer-plan.md`](docs/search-flow-explorer-plan.md) — the
   first investigation, written as one article from Phase A through Phase E;
 - [`docs/search-flow-results.md`](docs/search-flow-results.md) — test results,
   measurements, limits, and final decision;

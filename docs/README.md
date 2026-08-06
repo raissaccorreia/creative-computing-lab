@@ -5,7 +5,7 @@ short orientation; the decisions and reusable methods live here.
 
 ## Investigation 01 — Search Flow Explorer
 
-- [`search-flow-phases-c-d-e.md`](search-flow-phases-c-d-e.md) — one plain-
+- [`search-flow-explorer-plan.md`](search-flow-explorer-plan.md) — one plain-
   language article covering the investigation from the first static diagram
   through testing and the final reuse decision.
 - [`search-flow-results.md`](search-flow-results.md) — the concrete evidence:

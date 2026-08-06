@@ -2,7 +2,7 @@
 
 This folder contains the code for the first lab investigation. The plain-
 language story from Phase A through Phase E is in
-[`docs/search-flow-phases-c-d-e.md`](../../../docs/search-flow-phases-c-d-e.md).
+[`docs/search-flow-explorer-plan.md`](../../../docs/search-flow-explorer-plan.md).
 Measured results are in
 [`docs/search-flow-results.md`](../../../docs/search-flow-results.md).
 
