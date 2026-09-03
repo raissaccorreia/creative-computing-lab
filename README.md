@@ -20,6 +20,10 @@ The investigation notes and reusable working method are in [`docs/`](docs/):
   visual system decisions and the future investigation sequence;
 - [`docs/implementation-standard.md`](docs/implementation-standard.md) — the
   default method for planning, building, and reviewing future work.
+- [`docs/candidate-field-plan.md`](docs/candidate-field-plan.md) — the plan for
+  the next investigation, comparing SVG and Canvas at increasing volumes.
+- [`docs/candidate-field-results.md`](docs/candidate-field-results.md) — the
+  first SVG baseline and initial external-Chrome measurements.
 
 ## Current experiment
 
@@ -28,6 +32,10 @@ explained recommendations. It uses synthetic data, accessible HTML details,
 responsive layouts, and a Native/Motion comparison.
 
 The implementation lives in [`src/demos/search-flow/`](src/demos/search-flow/).
+
+The next investigation is the SVG baseline of **Candidate Field**, available at
+`/?demo=candidate-field` and implemented in
+[`src/demos/candidate-field/`](src/demos/candidate-field/).
 
 ## Run it
 
@@ -45,6 +53,8 @@ pnpm build
 pnpm test:e2e
 pnpm test:a11y
 pnpm test:visual
+# Uses external Google Chrome with a temporary profile for the SVG baseline.
+pnpm stress:candidate-field
 ```
 
 All public examples use neutral synthetic data. This repository is a learning

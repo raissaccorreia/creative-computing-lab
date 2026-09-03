@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import CandidateField from './demos/candidate-field/CandidateField'
 import SearchFlowExplorer from './demos/search-flow/SearchFlowExplorer'
 import './App.css'
 
@@ -6,6 +7,15 @@ type ThemeChoice = 'light' | 'dark' | 'system'
 type ResolvedTheme = Exclude<ThemeChoice, 'system'>
 
 const THEME_STORAGE_KEY = 'creative-computing-lab-theme'
+
+type LabView = 'search-flow' | 'candidate-field'
+
+function readLabView(): LabView {
+  if (typeof window === 'undefined') return 'search-flow'
+  return new URLSearchParams(window.location.search).get('demo') === 'candidate-field'
+    ? 'candidate-field'
+    : 'search-flow'
+}
 
 function readStoredTheme(): ThemeChoice {
   try {
@@ -71,6 +81,13 @@ function App() {
   const [theme, setTheme] = useState<ThemeChoice>(() =>
     typeof window === 'undefined' ? 'system' : readStoredTheme(),
   )
+  const [view, setView] = useState<LabView>(readLabView)
+
+  useEffect(() => {
+    const handleNavigation = () => setView(readLabView())
+    window.addEventListener('popstate', handleNavigation)
+    return () => window.removeEventListener('popstate', handleNavigation)
+  }, [])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -113,7 +130,18 @@ function App() {
         </header>
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </div>
-      <SearchFlowExplorer />
+      <nav className="lab-nav" aria-label="Experiments">
+        <a href="/" aria-current={view === 'search-flow' ? 'page' : undefined}>
+          Search Flow Explorer
+        </a>
+        <a
+          href="/?demo=candidate-field"
+          aria-current={view === 'candidate-field' ? 'page' : undefined}
+        >
+          Candidate Field
+        </a>
+      </nav>
+      {view === 'candidate-field' ? <CandidateField /> : <SearchFlowExplorer />}
     </main>
   )
 }
