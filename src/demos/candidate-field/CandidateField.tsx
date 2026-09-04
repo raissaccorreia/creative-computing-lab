@@ -1,6 +1,9 @@
 import { useMemo, useState, type FormEvent } from 'react'
+import CanvasRenderer from './CanvasRenderer'
+import SvgRenderer from './SvgRenderer'
 import {
   CANDIDATE_VOLUMES,
+  type CandidateFieldRenderer,
   type CandidateFieldState,
   type CandidateFieldVolume,
 } from './types'
@@ -38,6 +41,13 @@ function normalize(value: string): string {
   return value.trim().toLocaleLowerCase('en-US')
 }
 
+function readRenderer(): CandidateFieldRenderer {
+  if (typeof window === 'undefined') return 'svg'
+  return new URLSearchParams(window.location.search).get('renderer') === 'canvas'
+    ? 'canvas'
+    : 'svg'
+}
+
 function getSelectedCopy(
   selectedId: string | null,
   items: ReturnType<typeof getFieldItems>,
@@ -54,6 +64,7 @@ function CandidateField() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [searchValue, setSearchValue] = useState('')
   const [searchMessage, setSearchMessage] = useState('')
+  const renderer = readRenderer()
 
   const items = useMemo(() => getFieldItems(volume, state), [volume, state])
   const dimensions = getFieldDimensions()
@@ -93,7 +104,9 @@ function CandidateField() {
   return (
     <section className="candidate-field" aria-labelledby="candidate-field-title">
       <header className="candidate-field__header">
-        <p className="candidate-field__eyebrow">Investigation 02 · SVG baseline</p>
+        <p className="candidate-field__eyebrow">
+          Investigation 02 · {renderer === 'canvas' ? 'Canvas 2D layer' : 'SVG baseline'}
+        </p>
         <h2 id="candidate-field-title">Candidate Field</h2>
         <p className="candidate-field__lede">
           A deterministic collection of visual candidates. Change the volume and
@@ -147,49 +160,37 @@ function CandidateField() {
       <div className="candidate-field__layout">
         <figure className="candidate-field__figure">
           <div className="candidate-field__figure-heading">
-            <span>Public renderer</span>
-            <strong>SVG</strong>
+            <span>{renderer === 'canvas' ? 'Experimental renderer' : 'Public renderer'}</span>
+            <strong>{renderer === 'canvas' ? 'Canvas 2D' : 'SVG'}</strong>
           </div>
-          <div className="candidate-field__canvas" data-testid="candidate-field-svg-wrap">
-            <svg
-              viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
-              className="candidate-field__svg"
-              role="img"
-              aria-labelledby="candidate-field-svg-title candidate-field-svg-description"
-            >
-              <title id="candidate-field-svg-title">Candidate field rendered with SVG</title>
-              <desc id="candidate-field-svg-description">
-                {getFieldSummary(items, state)} Use the candidate search form to
-                inspect a candidate with the keyboard or a screen reader.
-              </desc>
-              <rect
-                className="candidate-field__svg-background"
-                x="0"
-                y="0"
-                width={dimensions.width}
-                height={dimensions.height}
-                rx="18"
+          <div
+            className="candidate-field__canvas"
+            data-testid={`candidate-field-${renderer}-wrap`}
+          >
+            {renderer === 'canvas' ? (
+              <CanvasRenderer
+                items={items}
+                selectedId={selectedId}
+                radius={radius}
+                dimensions={dimensions}
+                summary={getFieldSummary(items, state)}
+                onSelect={handleSelect}
               />
-              <g className="candidate-field__marks" aria-hidden="true">
-                {items.map((item) => (
-                  <g
-                    key={item.id}
-                    className={`candidate-field__mark${item.removed ? ' candidate-field__mark--removed' : ''}${selectedId === item.id ? ' candidate-field__mark--selected' : ''}`}
-                    data-candidate-id={item.id}
-                    onClick={() => handleSelect(item.id)}
-                  >
-                    <circle cx={item.x} cy={item.y} r={radius} />
-                    {selectedId === item.id ? (
-                      <circle className="candidate-field__selection-ring" cx={item.x} cy={item.y} r={radius + 4} />
-                    ) : null}
-                  </g>
-                ))}
-              </g>
-            </svg>
+            ) : (
+              <SvgRenderer
+                items={items}
+                selectedId={selectedId}
+                radius={radius}
+                dimensions={dimensions}
+                summary={getFieldSummary(items, state)}
+                onSelect={handleSelect}
+              />
+            )}
           </div>
           <figcaption>
-            Marks are intentionally simple. Their stable ids and the HTML details
-            panel are the contract that the later Canvas renderer must preserve.
+            {renderer === 'canvas'
+              ? 'Canvas draws the same deterministic marks. Its HTML search and details panel remain the accessible inspection path.'
+              : 'Marks are intentionally simple. Their stable ids and the HTML details panel are the contract that the Canvas renderer must preserve.'}
           </figcaption>
         </figure>
 
@@ -249,9 +250,9 @@ function CandidateField() {
       </div>
 
       <p className="candidate-field__note">
-        This is the first layer of the experiment: a readable SVG baseline. The
-        next layer will render the same model with Canvas and measure the trade-off
-        at controlled volumes in a separate comparison harness.
+        {renderer === 'canvas'
+          ? 'This is the second layer of the experiment: an equivalent Canvas 2D renderer. The comparison harness and guarded stress profile remain future layers.'
+          : 'This is the first layer of the experiment: a readable SVG baseline. The Canvas equivalent is available with the experimental renderer query parameter; the comparison harness and guarded stress profile remain future layers.'}
       </p>
     </section>
   )

@@ -20,14 +20,16 @@ short orientation; the decisions and reusable methods live here.
 
 - [`implementation-standard.md`](implementation-standard.md) — the shared
   method for future websites, apps, platform features, and visual experiments.
+- [`lab-roadmap.md`](lab-roadmap.md) — the proposed PR sequence from the
+  Candidate Field renderer decision through the later visual investigations.
 
 ## Investigation 02 — Candidate Field
 
-- [`candidate-field-plan.md`](candidate-field-plan.md) — the next-phase plan:
+- [`candidate-field-plan.md`](candidate-field-plan.md) — the investigation plan:
   compare SVG and Canvas at increasing volumes while preserving state,
   interaction, accessibility, and a reusable renderer decision.
 - [`candidate-field-results.md`](candidate-field-results.md) — the first SVG
-  baseline and the initial external-Chrome measurements.
+  baseline, Canvas layer, and initial external-Chrome measurements.
 
 ## How to add the next investigation
 

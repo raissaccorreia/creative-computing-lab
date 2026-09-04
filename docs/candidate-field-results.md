@@ -1,7 +1,8 @@
 # Investigation 02 — Candidate Field: First Results
 
-This note records the first runnable result. It covers the SVG baseline only;
-the Canvas renderer and comparison harness are still future steps.
+This note records the first runnable result and the Canvas equivalent. It does
+not make a renderer decision: the comparison harness and repeated measurements
+are still future steps.
 
 ## What is available
 
@@ -10,6 +11,7 @@ the Canvas renderer and comparison harness are still future steps.
 - Initial, Filtered, and Reordered states;
 - product volumes of 50, 250, 1,000, and 5,000 candidates;
 - pointer selection plus a keyboard and screen-reader search path;
+- an experimental Canvas 2D path at `/?demo=candidate-field&renderer=canvas`;
 - a reusable stress command: `pnpm stress:candidate-field`.
 
 ## Chrome baseline run
@@ -33,18 +35,28 @@ The 250-candidate filtered result is an outlier in this single run. It should
 not be treated as a threshold until repeated samples and the Canvas equivalent
 are measured under the same conditions.
 
+## Canvas layer
+
+The Canvas path uses the same deterministic field model and renderer-neutral
+interaction contract as the SVG path. It owns only drawing, device-pixel-ratio
+scaling, resize redraws, and pointer hit testing. The labelled HTML search form
+and details panel remain the keyboard and screen-reader path.
+
+This layer is implementation evidence, not performance evidence. No Canvas
+timings have been recorded yet.
+
 ## Current decision
 
 The SVG baseline is usable through the 5,000-candidate product range in this
 run, and the accessible HTML path keeps the experiment understandable without
-creating one keyboard stop per mark. No renderer decision can be made yet:
-the next step is to implement Canvas against the same model and repeat the
-measurements in a separate comparison harness.
+creating one keyboard stop per mark. Canvas now has an equivalent implementation,
+but no renderer decision can be made yet. The next step is a separate comparison
+harness followed by repeated measurements under the same conditions.
 
 ## Limits
 
 - this run measures one browser session and one viewport;
-- it does not measure Canvas, memory, long tasks, or missed frames;
+- it does not measure Canvas performance, memory, long tasks, or missed frames;
 - the stress ladder of 10,000–100,000 marks is not yet enabled;
 - the SVG marks are intentionally simple and do not represent a production
   visualization workload;

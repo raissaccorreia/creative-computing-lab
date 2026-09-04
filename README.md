@@ -20,8 +20,11 @@ The investigation notes and reusable working method are in [`docs/`](docs/):
   visual system decisions and the future investigation sequence;
 - [`docs/implementation-standard.md`](docs/implementation-standard.md) — the
   default method for planning, building, and reviewing future work.
+- [`docs/lab-roadmap.md`](docs/lab-roadmap.md) — the high-level PR sequence and
+  decision gates for the lab's visual-computing investigations.
 - [`docs/candidate-field-plan.md`](docs/candidate-field-plan.md) — the plan for
-  the next investigation, comparing SVG and Canvas at increasing volumes.
+  the Candidate Field investigation, comparing SVG and Canvas at increasing
+  volumes.
 - [`docs/candidate-field-results.md`](docs/candidate-field-results.md) — the
   first SVG baseline and initial external-Chrome measurements.
 
@@ -33,9 +36,11 @@ responsive layouts, and a Native/Motion comparison.
 
 The implementation lives in [`src/demos/search-flow/`](src/demos/search-flow/).
 
-The next investigation is the SVG baseline of **Candidate Field**, available at
-`/?demo=candidate-field` and implemented in
+The current investigation is **Candidate Field**, available at
+`/?demo=candidate-field` with an experimental Canvas path at
+`/?demo=candidate-field&renderer=canvas`, implemented in
 [`src/demos/candidate-field/`](src/demos/candidate-field/).
+The SVG/Canvas comparison harness is the next planned layer.
 
 ## Run it
 
