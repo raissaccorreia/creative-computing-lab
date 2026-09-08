@@ -78,7 +78,9 @@ export function getMarkRadius(volume: CandidateFieldVolume): number {
   if (volume <= 50) return 8
   if (volume <= 250) return 5
   if (volume <= 1000) return 3.4
-  return 2.2
+  if (volume <= 5000) return 2.2
+  if (volume <= 25000) return 1.8
+  return 1.4
 }
 
 export function getFieldItems(
@@ -113,6 +115,20 @@ export function getFieldSummary(items: CandidateFieldItem[], state: CandidateFie
         : 'the same stable ids are shown in deterministic score order'
 
   return `${items.length.toLocaleString('en-US')} candidates; ${stateCopy}.`
+}
+
+export function getFieldVolumeSummary(
+  volume: CandidateFieldVolume,
+  state: CandidateFieldState,
+): string {
+  const stateCopy =
+    state === 'initial'
+      ? 'all candidates are ready to be shown in their stable input order'
+      : state === 'filtered'
+        ? 'the filtered state is ready while candidate identity remains stable'
+        : 'the same stable ids are ready to be shown in deterministic score order'
+
+  return `${volume.toLocaleString('en-US')} candidates; ${stateCopy}.`
 }
 
 export function getFieldDimensions() {

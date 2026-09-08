@@ -40,7 +40,9 @@ The current investigation is **Candidate Field**, available at
 `/?demo=candidate-field` with an experimental Canvas path at
 `/?demo=candidate-field&renderer=canvas`, implemented in
 [`src/demos/candidate-field/`](src/demos/candidate-field/).
-The SVG/Canvas comparison harness is the next planned layer.
+The bounded SVG/Canvas comparison harness is available at
+`/?demo=candidate-field-comparison`; its external Chrome profile is exposed as
+`pnpm stress:candidate-field`.
 
 ## Run it
 
@@ -58,7 +60,7 @@ pnpm build
 pnpm test:e2e
 pnpm test:a11y
 pnpm test:visual
-# Uses external Google Chrome with a temporary profile for the SVG baseline.
+# Uses external Google Chrome with a temporary profile for the bounded comparison.
 pnpm stress:candidate-field
 ```
 

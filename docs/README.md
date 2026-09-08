@@ -29,7 +29,7 @@ short orientation; the decisions and reusable methods live here.
   compare SVG and Canvas at increasing volumes while preserving state,
   interaction, accessibility, and a reusable renderer decision.
 - [`candidate-field-results.md`](candidate-field-results.md) — the first SVG
-  baseline, Canvas layer, and initial external-Chrome measurements.
+  baseline, Canvas layer, comparison harness, and guarded stress boundaries.
 
 ## How to add the next investigation
 
