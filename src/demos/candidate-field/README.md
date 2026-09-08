@@ -1,15 +1,15 @@
 # Candidate Field
 
-Candidate Field is the SVG baseline for Investigation 02. It renders a
-deterministic collection of synthetic candidates and keeps three things stable
-while the state changes: candidate ids, selection, and the HTML explanation
-path.
+Candidate Field is the first renderer investigation after Search Flow Explorer.
+It renders a deterministic collection of synthetic candidates and keeps three
+things stable while the state changes: candidate ids, selection, and the HTML
+explanation path.
 
-The public view exposes product volumes of 50, 250, 1,000, and 5,000 marks.
-The visual marks are pointer-friendly, while keyboard and screen-reader users
-inspect a candidate through the labelled search form instead of tabbing through
-every mark.
+The public view uses SVG by default and exposes product volumes of 50, 250,
+1,000, and 5,000 marks. The experimental Canvas 2D layer is available at
+`/?demo=candidate-field&renderer=canvas`; it uses the same model, state, pointer
+selection, and HTML details path.
 
-Canvas, comparison controls, and guarded stress profiles belong to the next
-layers of the investigation. They must use the same model and interaction
-contract before their performance can be compared.
+The comparison harness, repeated measurements, and guarded stress profiles
+belong to the next layers of the investigation. This PR does not claim that
+Canvas is faster or better than SVG.
