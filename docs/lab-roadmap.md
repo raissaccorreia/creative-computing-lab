@@ -64,6 +64,12 @@ guarded or unsupported workloads as boundaries rather than as failures.
 **Success criterion:** the repository contains one evidence-backed renderer
 decision and states what is reusable versus specific to Candidate Field.
 
+This PR records the decision: keep SVG as the public default through the tested
+50–5,000 product range, and keep Canvas as a selective dense-overview option
+from 10,000 candidates upward only when a real workload requires it. The HTML
+inspection path remains mandatory for both. No automatic public switch is
+applied while the data and mark shape remain synthetic.
+
 Choose one outcome:
 
 - keep SVG for the tested range;
@@ -72,16 +78,13 @@ Choose one outcome:
 - reformulate the workload; or
 - archive the extension if its complexity does not create enough value.
 
-**Success criterion:** the repository contains one evidence-backed decision and
-states what is reusable versus specific to Candidate Field.
-
 ### PR #10 — Apply the decision, if necessary
 
 **Suggested title:** `refactor: apply Candidate Field renderer decision`
 
-Open this PR only if PR #10 changes the recommended public renderer or requires
-cleanup of experiment-only code. Preserve the accessible HTML path and keep the
-comparison evidence reproducible.
+Open this PR only if a real dense workload changes the recommended public
+renderer or requires cleanup of experiment-only code. Preserve the accessible
+HTML path and keep the comparison evidence reproducible.
 
 ## Later investigations
 

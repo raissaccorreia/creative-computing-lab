@@ -374,10 +374,11 @@ Keep the candidate domain, exact mark styling, volume labels, and visual
 composition specific to this experiment unless another project independently
 validates them.
 
-## Before the renderer decision
+## Decision recorded in PR #9
 
-Repeat the profile in the same built app and record the browser, operating
-system, viewport, build, device-pixel-ratio assumption, workload, and useful
-outliers. Do not turn this first run into a universal performance promise. The
-next implementation PR should only apply a renderer change if the evidence
-supports it.
+Keep SVG as the public default through the tested 50–5,000 product range. Treat
+Canvas as a selective dense-overview option from 10,000 candidates upward only
+when a real workload needs that density, and keep the HTML inspection path as
+the semantic companion. Do not apply an automatic renderer switch to synthetic
+data alone. Revisit the decision only with target-device evidence covering
+memory, missed frames, pointer latency, and progressive disclosure.
