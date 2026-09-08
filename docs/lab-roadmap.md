@@ -9,7 +9,8 @@ one primary demonstration, and one success criterion.
 Search Flow Explorer and the visual foundation are complete. PR #6 established
 the Candidate Field SVG baseline with deterministic synthetic data, explicit
 initial/filtered/reordered states, product volumes, an accessible HTML
-inspection path, and a first directional Chrome run.
+inspection path, and a first directional Chrome run. PR #7 added the equivalent
+Canvas 2D layer without changing that contract.
 
 The current question is not whether Canvas is fashionable or universally
 faster. It is when a denser renderer becomes a useful trade-off while meaning,
@@ -31,42 +32,37 @@ harness exists.
 interaction contract for the tested product volumes. This PR does not make a
 performance claim.
 
-### PR #8 — Comparison harness
+### PR #8 — Comparison harness + guarded stress profile
 
-**Suggested title:** `feat: add Candidate Field comparison harness`
+**Suggested title:** `feat: add Candidate Field comparison and guarded stress harness`
 
 Create a separate, intentional comparison view with renderer, volume, and state
-presets. Show a concise explanation of what is being compared. Keep the main
-demo readable and avoid turning the public page into a raw benchmark dashboard.
+presets. Keep the main demo readable while giving the investigation a serious
+place to compare the same workload across SVG and Canvas 2D. Add the bounded
+stress ladder of 10,000, 25,000, 50,000, and 100,000 candidates, renderer-specific
+guard limits, a directional render-response measurement, and an external Chrome
+runner that records inspection response and optional long-task evidence.
 
 **Success criterion:** switching renderer or state does not change candidate
-identity, selection, explanation text, or accessibility behavior.
+identity, selection, explanation text, or accessibility behavior; the same
+repeatable runner can measure product and stress presets without accepting
+unbounded input or mounting a workload beyond its declared renderer limit.
 
-The exact public-versus-internal presentation should be confirmed before this
-PR becomes an implementation contract.
+This PR is still an experiment, not a renderer decision. Its output is a safe,
+repeatable evidence surface for the next gate.
 
-### PR #9 — Guarded stress profile
-
-**Suggested title:** `feat: add guarded Candidate Field stress profile`
-
-Add bounded stress presets such as 10,000, 25,000, 50,000, and 100,000 marks.
-Measure initial render, filtered update, reordered update, pointer selection,
-details response, long tasks, and bundle impact where the browser supports it.
-Stop at the first configured guardrail and preserve the last trustworthy result.
-
-**Success criterion:** the harness is safe to repeat on a normal development
-machine, never accepts unbounded volume input, and reports unsupported or
-interrupted measurements honestly.
-
-The stress cap remains provisional until the first guarded runs are reviewed.
-
-### PR #10 — Evidence and renderer decision
+### PR #9 — Evidence and renderer decision
 
 **Suggested title:** `docs: record Candidate Field renderer decision`
 
-Repeat the workload in a named browser, operating system, viewport, build, and
-device-pixel-ratio assumption. Record medians, useful outliers, screenshots,
-responsive and accessibility checks, bundle change, and known limits.
+Repeat the combined harness in a named browser, operating system, viewport,
+build, and device-pixel-ratio assumption. Record medians, useful outliers,
+screenshots, responsive and accessibility checks, bundle change, and known
+limits. Separate renderer response from HTML inspection response and report
+guarded or unsupported workloads as boundaries rather than as failures.
+
+**Success criterion:** the repository contains one evidence-backed renderer
+decision and states what is reusable versus specific to Candidate Field.
 
 Choose one outcome:
 
@@ -79,7 +75,7 @@ Choose one outcome:
 **Success criterion:** the repository contains one evidence-backed decision and
 states what is reusable versus specific to Candidate Field.
 
-### PR #11 — Apply the decision, if necessary
+### PR #10 — Apply the decision, if necessary
 
 **Suggested title:** `refactor: apply Candidate Field renderer decision`
 

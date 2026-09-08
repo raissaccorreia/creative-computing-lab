@@ -10,9 +10,11 @@ than SVG.
 ## Current decision status
 
 The direction is approved: include a serious rendering stress test, preserve
-keyboard and screen-reader access, and expose the work in layers. This first
-delivery establishes the SVG baseline. The exact high-volume cap remains
-provisional until the guarded comparison harness produces trustworthy evidence.
+keyboard and screen-reader access, and expose the work in layers. PR #6
+established the SVG baseline, PR #7 added the Canvas equivalent, and PR #8
+implemented the separate comparison view plus guarded stress runner. The
+renderer decision remains provisional until repeated runs produce trustworthy
+evidence.
 
 ## The question
 
@@ -267,18 +269,19 @@ Render the same records and states with Canvas 2D. Keep drawing, resize, device
 pixel ratio, and hit testing in the renderer adapter. Do not move filtering,
 selection eligibility, or explanation text into Canvas code.
 
-### 5. Add the internal comparison harness
+### 5. Add the comparison harness
 
-The harness should switch renderer and volume while showing the same state. It
-should expose measurements and a short explanation of what is being compared.
-The public demo should keep one clear recommended path; the harness is for
-learning and review.
+The implemented comparison view switches renderer, volume, and state while
+showing the same contract. It exposes a bounded directional measurement and a
+short explanation of what is being compared. The public demo keeps one clear
+recommended path; the comparison view is for learning and review.
 
 ### 6. Add the guarded stress profile
 
-Run the bounded product and stress ladders. Increase the volume only through a
-preset, stop at the first guardrail, and preserve the last trustworthy result.
-The test must be safe to run repeatedly on a normal development machine.
+The implemented runner runs the bounded product and stress ladders. It uses
+presets only, returns a guarded result before mounting an unsafe workload, and
+records the last trustworthy result. The profile is safe to repeat on a normal
+development machine.
 
 ### 7. Measure and review
 
@@ -371,9 +374,10 @@ Keep the candidate domain, exact mark styling, volume labels, and visual
 composition specific to this experiment unless another project independently
 validates them.
 
-## Before implementation
+## Before the renderer decision
 
-Confirm the proposed volumes, the public-versus-harness split, and the exact
-interaction contract. Once those are agreed, implement the smallest SVG
-baseline first and stop for a results review before adding Canvas-specific
-optimizations.
+Repeat the profile in the same built app and record the browser, operating
+system, viewport, build, device-pixel-ratio assumption, workload, and useful
+outliers. Do not turn this first run into a universal performance promise. The
+next implementation PR should only apply a renderer change if the evidence
+supports it.

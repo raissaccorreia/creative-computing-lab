@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import CandidateField from './demos/candidate-field/CandidateField'
+import CandidateFieldComparison from './demos/candidate-field/CandidateFieldComparison'
 import SearchFlowExplorer from './demos/search-flow/SearchFlowExplorer'
 import './App.css'
 
@@ -8,13 +9,14 @@ type ResolvedTheme = Exclude<ThemeChoice, 'system'>
 
 const THEME_STORAGE_KEY = 'creative-computing-lab-theme'
 
-type LabView = 'search-flow' | 'candidate-field'
+type LabView = 'search-flow' | 'candidate-field' | 'candidate-field-comparison'
 
 function readLabView(): LabView {
   if (typeof window === 'undefined') return 'search-flow'
-  return new URLSearchParams(window.location.search).get('demo') === 'candidate-field'
-    ? 'candidate-field'
-    : 'search-flow'
+  const demo = new URLSearchParams(window.location.search).get('demo')
+  if (demo === 'candidate-field-comparison') return 'candidate-field-comparison'
+  if (demo === 'candidate-field') return 'candidate-field'
+  return 'search-flow'
 }
 
 function readStoredTheme(): ThemeChoice {
@@ -140,8 +142,20 @@ function App() {
         >
           Candidate Field
         </a>
+        <a
+          href="/?demo=candidate-field-comparison"
+          aria-current={view === 'candidate-field-comparison' ? 'page' : undefined}
+        >
+          Candidate Field Comparison
+        </a>
       </nav>
-      {view === 'candidate-field' ? <CandidateField /> : <SearchFlowExplorer />}
+      {view === 'candidate-field' ? (
+        <CandidateField />
+      ) : view === 'candidate-field-comparison' ? (
+        <CandidateFieldComparison />
+      ) : (
+        <SearchFlowExplorer />
+      )}
     </main>
   )
 }

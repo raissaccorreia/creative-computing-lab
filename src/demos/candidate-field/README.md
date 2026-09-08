@@ -10,6 +10,15 @@ The public view uses SVG by default and exposes product volumes of 50, 250,
 `/?demo=candidate-field&renderer=canvas`; it uses the same model, state, pointer
 selection, and HTML details path.
 
-The comparison harness, repeated measurements, and guarded stress profiles
-belong to the next layers of the investigation. This PR does not claim that
-Canvas is faster or better than SVG.
+The comparison view is available at `/?demo=candidate-field-comparison`. It
+keeps renderer, state, and volume presets bounded, measures a fresh renderer
+mount directionally, and reports when a renderer-specific ceiling prevents a
+stress workload from mounting. The repeatable external profile is:
+
+```bash
+pnpm stress:candidate-field
+```
+
+The profile uses a temporary external Chrome context and reports product and
+stress results as evidence, not as a universal performance claim. PR #8 does
+not choose SVG or Canvas; that decision belongs to the repeated evidence note.
