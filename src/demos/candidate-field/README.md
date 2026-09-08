@@ -19,6 +19,14 @@ stress workload from mounting. The repeatable external profile is:
 pnpm stress:candidate-field
 ```
 
+For a decision-quality local sample, repeat the bounded profile three times:
+
+```bash
+CANDIDATE_FIELD_HEADLESS=true CANDIDATE_FIELD_RUNS=3 pnpm stress:candidate-field
+```
+
 The profile uses a temporary external Chrome context and reports product and
-stress results as evidence, not as a universal performance claim. PR #8 does
-not choose SVG or Canvas; that decision belongs to the repeated evidence note.
+stress results as evidence, not as a universal performance claim. The decision
+record keeps SVG public through the tested product range and reserves Canvas
+for a future dense overview when a real workload justifies it; both retain the
+HTML inspection path.

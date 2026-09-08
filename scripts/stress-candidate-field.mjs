@@ -17,6 +17,10 @@ const volumes = [...productVolumes, ...stressVolumes]
 const states = ['initial', 'filtered', 'reordered']
 const rendererLimits = { svg: 25000, canvas: 100000 }
 const measurementBudgetMs = 2500
+const requestedRuns = Number.parseInt(process.env.CANDIDATE_FIELD_RUNS ?? '1', 10)
+const repeats = Number.isInteger(requestedRuns)
+  ? Math.min(Math.max(requestedRuns, 1), 5)
+  : 1
 
 function guardedResult(renderer, volume) {
   const limit = rendererLimits[renderer]
@@ -165,6 +169,79 @@ async function measureAllowedWorkload(page, renderer, volume) {
   }
 }
 
+async function measureProfile(page) {
+  const results = []
+
+  for (const renderer of renderers) {
+    for (const volume of volumes) {
+      const guarded = guardedResult(renderer, volume)
+      results.push(guarded ?? (await measureAllowedWorkload(page, renderer, volume)))
+    }
+  }
+
+  return results
+}
+
+function median(values) {
+  const sorted = [...values].sort((a, b) => a - b)
+  if (sorted.length === 0) return null
+  const middle = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 0
+    ? Number(((sorted[middle - 1] + sorted[middle]) / 2).toFixed(1))
+    : Number(sorted[middle].toFixed(1))
+}
+
+function maximum(values) {
+  return values.length === 0 ? null : Number(Math.max(...values).toFixed(1))
+}
+
+function summarizeProfiles(profiles) {
+  const grouped = new Map()
+
+  for (const profile of profiles) {
+    for (const result of profile.results) {
+      if (result.status !== 'measured') continue
+
+      for (const state of states) {
+        const key = `${result.renderer}:${result.volume}:${state}`
+        const group = grouped.get(key) ?? {
+          renderer: result.renderer,
+          volume: result.volume,
+          state,
+          renderResponseMs: [],
+          inspectionWallClockMs: [],
+          longTasksMs: [],
+        }
+        group.renderResponseMs.push(result.measurements[state].renderResponseMs)
+        group.inspectionWallClockMs.push(result.inspections[state].wallClockMs)
+        group.longTasksMs.push(...result.measurements[state].longTasksMs)
+        grouped.set(key, group)
+      }
+    }
+  }
+
+  return [...grouped.values()]
+    .sort((a, b) => a.volume - b.volume || a.renderer.localeCompare(b.renderer) || a.state.localeCompare(b.state))
+    .map((group) => ({
+      renderer: group.renderer,
+      volume: group.volume,
+      state: group.state,
+      samples: group.renderResponseMs.length,
+      renderResponseMs: {
+        median: median(group.renderResponseMs),
+        maximum: maximum(group.renderResponseMs),
+      },
+      inspectionWallClockMs: {
+        median: median(group.inspectionWallClockMs),
+        maximum: maximum(group.inspectionWallClockMs),
+      },
+      longTaskMs: {
+        maximum: maximum(group.longTasksMs),
+        entries: group.longTasksMs.length,
+      },
+    }))
+}
+
 const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), 'creative-computing-chrome-'))
 let context
 
@@ -185,13 +262,10 @@ try {
 try {
   const page = context.pages()[0] ?? (await context.newPage())
   page.setDefaultTimeout(60_000)
-  const results = []
+  const profiles = []
 
-  for (const renderer of renderers) {
-    for (const volume of volumes) {
-      const guarded = guardedResult(renderer, volume)
-      results.push(guarded ?? (await measureAllowedWorkload(page, renderer, volume)))
-    }
+  for (let run = 1; run <= repeats; run += 1) {
+    profiles.push({ run, results: await measureProfile(page) })
   }
 
   console.log(
@@ -211,7 +285,10 @@ try {
         states,
         rendererLimits,
         measurementBudgetMs,
-        results,
+        requestedRuns: Number.isInteger(requestedRuns) ? requestedRuns : 1,
+        repeats,
+        profiles,
+        summary: summarizeProfiles(profiles),
       },
       null,
       2,

@@ -1,9 +1,9 @@
-# Investigation 02 — Candidate Field: First Results
+# Investigation 02 — Candidate Field: Results and Renderer Decision
 
-This note records the first runnable result, the Canvas equivalent, and the
-combined comparison/stress harness. It still does not make a renderer decision:
-the harness must be run repeatedly under named conditions before the trade-off
-is trustworthy.
+This note records the SVG baseline, the Canvas equivalent, the combined
+comparison/stress harness, and the first renderer decision. The decision is
+bound to the named workload and browser conditions below; it is not a universal
+performance claim.
 
 ## What is available
 
@@ -44,9 +44,9 @@ interaction contract as the SVG path. It owns only drawing, device-pixel-ratio
 scaling, resize redraws, and pointer hit testing. The labelled HTML search form
 and details panel remain the keyboard and screen-reader path.
 
-This first layer is implementation evidence, not a renderer decision. The
-comparison run below is the first performance-oriented evidence collected after
-the Canvas equivalent was added.
+This first layer is implementation evidence. The comparison and repeated runs
+below turn it into a bounded renderer decision without claiming a universal
+benchmark.
 
 ## Comparison and guarded stress profile
 
@@ -102,27 +102,87 @@ guard behavior, and obvious scale boundaries. Repeated runs, memory, missed
 frames, pointer latency, and a more realistic mark workload remain necessary
 before the renderer decision in PR #9.
 
+## Repeated evidence run — PR #9
+
+The runner now accepts a bounded repeat count. The decision run used:
+
+```bash
+CANDIDATE_FIELD_HEADLESS=true CANDIDATE_FIELD_RUNS=3 pnpm stress:candidate-field
+```
+
+It completed three samples for each of the 42 measured
+renderer/volume/state combinations. The table reports the initial-state
+renderer response as `median / maximum` across those three samples; Filtered
+and Reordered were measured in the same run and are included in the aggregate
+output. The two SVG rows above 25,000 are guards, not failed renders.
+
+| Volume | SVG initial response (ms) | Canvas initial response (ms) | SVG | Canvas |
+| ---: | ---: | ---: | --- | --- |
+| 50 | 31.7 / 31.7 | 30.4 / 30.7 | measured | measured |
+| 250 | 30.7 / 31.1 | 30.4 / 31.4 | measured | measured |
+| 1,000 | 30.5 / 30.8 | 31.1 / 31.8 | measured | measured |
+| 5,000 | 31.7 / 32.0 | 30.3 / 30.6 | measured | measured |
+| 10,000 | 47.0 / 47.3 | 25.1 / 30.8 | measured | measured |
+| 25,000 | 116.6 / 117.0 | 30.8 / 31.1 | measured; long tasks | measured |
+| 50,000 | — | 30.2 / 30.7 | guarded | measured |
+| 100,000 | — | 30.9 / 31.9 | guarded | measured |
+
+SVG produced long-task entries in all three states at 25,000 candidates in all
+three runs; the maximum observed entry was 101 ms. Canvas produced no
+long-task entries in the repeated profile. HTML inspection of
+`candidate-00001` preserved the stable id in all 126 measured checks. The
+largest inspection outliers were 129.5 ms for SVG at 25,000 and 51.1 ms for
+Canvas at 100,000.
+
+The runner also reports the guarded rows explicitly, limits repeats to five,
+and emits per-state medians, maxima, and long-task counts so a later run can be
+compared without hand-copying raw samples.
+
+## Bundle and validation evidence
+
+The built preview remained dependency-neutral for this decision pass: PR #9
+adds no runtime dependency and changes the stress runner and documentation
+only. The current production build reports a 303.40 kB JavaScript asset (95.25
+kB gzip) and a 26.66 kB CSS asset (5.19 kB gzip). The comparison route passed
+the responsive and axe checks, the full browser suite remained green, and the
+comparison/guard visual inspection reported no console errors or warnings.
+
+These renderer-response values still include a fresh mount and two animation
+frames, so readings near 30–32 ms are a timing floor rather than proof that
+one renderer is intrinsically faster. They are strong enough to identify the
+SVG scale boundary in this workload, but not to replace memory, missed-frame,
+pointer-latency, or real application-data validation.
+
 ## Current decision
 
-The SVG baseline remains usable through the 5,000-candidate product range, and
-the accessible HTML path keeps the experiment understandable without creating
-one keyboard stop per mark. This first combined run gives the project a useful
-boundary: SVG reached a long-task signal at its 25,000 ceiling while Canvas
-completed the declared 100,000 ceiling in the same bounded harness. That is a
-reason to investigate Canvas selectively, not a final adoption decision. PR #9
-should repeat the profile and choose whether to keep SVG, introduce Canvas
-selectively, use a hybrid, reformulate, or archive the extension.
+The decision is a selective hybrid boundary:
+
+- keep SVG as the public default through the tested 50–5,000 product range;
+- preserve the HTML inspection path as the semantic contract for every renderer;
+- recommend Canvas for a future dense overview at 10,000 candidates or above,
+  subject to a real workload needing that density;
+- keep the Canvas path experimental and explicit until a product scenario
+  validates pointer behavior, progressive disclosure, memory, and missed-frame
+  behavior on target devices.
+
+No automatic public renderer switch is applied in this PR. That keeps the
+current product range simple and avoids turning a synthetic benchmark into a
+production guarantee. A future application PR is justified only if a real
+dense workload appears; otherwise the comparison harness and decision note are
+the reusable result.
 
 ## Limits
 
-- this run measures one browser session and one viewport;
+- the repeated run measures one browser family, one operating system, one
+  viewport, and one device-pixel ratio;
 - the baseline table is from one earlier SVG-only run and is not a comparison
   result;
 - the comparison runner can record Canvas response, inspection response, and
-  long-task entries, but memory and missed frames remain outside this layer;
-- the stress ladder is bounded by the declared renderer ceilings and still needs
-  repeated named-browser runs before it supports a decision;
+  long-task entries, but memory, missed frames, and pointer latency remain
+  outside this layer;
+- the stress ladder is bounded by the declared renderer ceilings and the
+  10,000+ recommendation is conditional on a real application workload;
 - the SVG marks are intentionally simple and do not represent a production
   visualization workload;
-- timings include browser automation and should be repeated before making a
-  product recommendation.
+- timings include browser automation and should be repeated on target hardware
+  before changing a product renderer.

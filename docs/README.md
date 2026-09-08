@@ -28,8 +28,9 @@ short orientation; the decisions and reusable methods live here.
 - [`candidate-field-plan.md`](candidate-field-plan.md) — the investigation plan:
   compare SVG and Canvas at increasing volumes while preserving state,
   interaction, accessibility, and a reusable renderer decision.
-- [`candidate-field-results.md`](candidate-field-results.md) — the first SVG
-  baseline, Canvas layer, comparison harness, and guarded stress boundaries.
+- [`candidate-field-results.md`](candidate-field-results.md) — the SVG baseline,
+  repeated comparison evidence, guarded stress boundaries, and renderer
+  decision.
 
 ## How to add the next investigation
 
