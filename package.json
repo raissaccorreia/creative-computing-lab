@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "validate:pilot": "pnpm typecheck && pnpm lint && pnpm build",
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "test:e2e": "playwright test",
