@@ -9,14 +9,14 @@ scope_note: "Primary pilot candidate for the auto-dev protocol."
 report_language: en-US
 snapshot_date: 2026-09-11
 base_branch: main
-base_branch_commit: 46dd4a452ad477689a49e63807ec770e85854b0a
-current_branch: codex/meta-work-pilot-readiness
+base_branch_commit: 0655453
+current_branch: codex/mw-cod-001-phase-e-review
 current_branch_base: main
-main_tracking_status: behind_origin_main_by_13
-origin_main_ref: 12e5fb047b1fc639d0ee16817c20bacd105936d0
+main_tracking_status: up_to_date
+origin_main_ref: 0655453
 worktree: dirty
-worktree_changes: "package.json; docs/agent-readiness.md"
-generated_untracked: ".pnpm-store/index.db"
+worktree_changes: "docs/agent-readiness.md; docs/search-flow-results.md; src/demos/search-flow/README.md"
+generated_untracked: "none after removing transient pnpm WAL files"
 remote: configured
 remote_name: origin
 remote_url: "git@github.com:raissaccorreia/creative-computing-lab.git"
@@ -27,10 +27,10 @@ staging_remote_tracking: absent
 staging_remote_path: unconfirmed
 local_gate: "pnpm validate:pilot"
 local_gate_definition: "pnpm typecheck && pnpm lint && pnpm build"
-local_gate_status: blocked_environment
-local_gate_failure_category: pnpm_dependency_preflight_requires_reinstall
-local_gate_failure_codes: "ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY; ERR_PNPM_ABORTED_REMOVE_MODULES_DIR"
-local_gate_checks_reached: none
+local_gate_status: passed
+local_gate_failure_category: none
+local_gate_failure_codes: none
+local_gate_checks_reached: "typecheck; lint; build"
 workflow_files: absent_current_checkout
 github_actions: absent_current_checkout
 github_actions_gate: "not_found_in_current_checkout"
@@ -44,18 +44,19 @@ manual_development: allowed
 promotion_path: "task-branch -> staging -> human PR -> main"
 automation_boundary: "No unattended execution or promotion; remote staging and human promotion remain unconfirmed."
 blocker_codes:
-  - LOCAL_GATE_BLOCKED_BY_PNPM_ENVIRONMENT
   - LOCAL_MAIN_BEHIND_ORIGIN_MAIN
   - REMOTE_STAGING_PATH_UNCONFIRMED
   - HUMAN_PROMOTION_PATH_UNVERIFIED
   - WORKFLOW_FILES_ABSENT
-observed_checks: "pnpm validate:pilot"
+observed_checks: "pnpm install --frozen-lockfile; pnpm exec playwright install chromium; CI=true pnpm validate:pilot; pnpm test:e2e; pnpm test:a11y; pnpm test:visual; git diff --check"
 audit_mode: preparation_branch
 ---
 
 # Project readiness state
 
-Deterministic snapshot produced by the MW-GH-001 preparation run on 2026-09-11. The frontmatter is the queryable source; this prose records the evidence boundary. This file is intended to be included in the preparation PR.
+Deterministic snapshot updated by the MW-COD-001 Phase E pilot run on
+2026-09-11. The frontmatter is the queryable source; this prose records the
+evidence boundary. The resulting review branch is published in PR #11.
 
 ## Policy
 
@@ -63,37 +64,52 @@ This state blocks unattended execution and promotion, not manual development. Th
 
 ## Observed local state
 
-- The current branch is `codex/meta-work-pilot-readiness`, based on local `main` at `46dd4a4`.
-- Local `main` is behind the local `origin/main` tracking reference by 13 commits; no fetch or pull was performed.
+- The isolated worktree started at validated commit `ed5d9da` and now contains
+  the review branch `codex/mw-cod-001-phase-e-review`.
+- `origin/main` was fetched before the conflict-resolution rebase and is now the
+  base of this review branch at `0655453`.
 - The local `staging` ref now exists at the same commit and was not checked out or pushed.
 - The configured remote is `origin`; its URL is recorded from local Git configuration.
 - No local `refs/remotes/origin/staging` reference was observed. The actual remote staging path was not queried in this run.
-- The checkout contains the intended `package.json` change and this readiness file, plus the generated untracked `.pnpm-store/index.db`. The generated store is not intended for the preparation PR.
+- The post-rebase changes are limited to the readiness snapshot, the current
+  Search Flow results record, and its implementation note. The canonical visual
+  suite already exists on `main`; duplicate visual files were removed while
+  resolving the PR conflicts. Build, dependency, and Playwright output remains
+  ignored.
 - `.github/workflows` is absent in this checkout; no GitHub Actions gate was observed locally.
 
 ## Local pilot gate result
 
-Command: `pnpm validate:pilot`
+Commands: `pnpm install --frozen-lockfile`, `pnpm exec playwright install chromium`,
+`CI=true pnpm validate:pilot`, `pnpm test:e2e`, `pnpm test:a11y`, and
+`pnpm test:visual`
 
-Status: blocked before the project checks ran.
+Status: passed.
 
-Failure category: `pnpm_dependency_preflight_requires_reinstall` (with the initial non-TTY error `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`)
+The pilot reached and passed typecheck, lint, build, 37 E2E tests, 8 axe tests,
+and 4 visual comparisons. The current production bundle measured 95.25 kB gzip
+JavaScript and 5.19 kB gzip CSS. Browser evidence recorded no console errors or
+warnings, no external requests, no horizontal overflow at 390/820/1024/1280px,
+and no long task above 50 ms in the tested Native or Motion stage transitions.
 
-Relevant output:
+The first sandboxed attempt to run `CI=true pnpm validate:pilot` tried to
+restore 164 locked packages and was stopped after npm registry DNS resolution
+was denied. The same command was then rerun in the authorized network context,
+restored from the local pnpm store, and passed. This is an environment boundary,
+not a project failure.
 
 ```text
-[ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY] Aborted removal of modules directory due to no TTY
-[ERROR] Command failed with exit code 1: pnpm install
+CI=true pnpm validate:pilot
+✓ typecheck
+✓ lint
+✓ build
 ```
 
-The gate did not reach `typecheck`, `lint`, or `build`. A second TTY attempt displayed a prompt to remove and reinstall `node_modules`; `n` was supplied to avoid an unapproved dependency installation, producing:
+## Review boundary
 
-```text
-[ERR_PNPM_ABORTED_REMOVE_MODULES_DIR] Aborted removal of modules directory
-[ERROR] Command failed with exit code 1: pnpm install
-```
-
-It was not rerun with `CI=true` or another flag that could trigger dependency installation; no network installation was authorized.
+Commit `657aca1` was rebased onto `origin/main`, conflicts were resolved, and
+the updated branch was force-pushed for PR #11. No merge, deploy, or branch
+protection change was performed.
 
 ## Automation boundary
 
@@ -101,10 +117,8 @@ Automation eligibility remains **blocked** until a remote staging path is explic
 
 ## Later human-approved promotion
 
-After review and a local commit containing only the intended preparation files, the later remote command is:
+After review, the human promotion path remains:
 
 ```sh
-git push -u origin codex/meta-work-pilot-readiness
+task branch -> staging -> human PR -> main
 ```
-
-That command is recorded for a later human-approved action and was not executed here.

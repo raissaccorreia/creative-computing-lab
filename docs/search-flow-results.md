@@ -1,6 +1,6 @@
 # Search Flow Explorer — what we learned
 
-Date of measurement: 2026-08-06
+Date of measurement: 2026-09-11
 
 This is the short record of what we built, tested, and learned. The numbers
 describe this local run. They are not a promise for every device and do not
@@ -13,16 +13,21 @@ It follows the repository's [working standard](implementation-standard.md).
 The following commands passed on the Phase E branch:
 
 ```text
+pnpm install --frozen-lockfile
+pnpm exec playwright install chromium
 pnpm lint
 pnpm typecheck
 pnpm build
 pnpm test:e2e
 pnpm test:a11y
+pnpm test:visual
+git diff --check
 ```
 
-The full E2E run has 25 passing tests. It covers the flow behavior, four visual
-comparisons, a Native/Motion performance check, and three responsive/console
-checks. The separate accessibility command passes three axe checks.
+The full E2E run has 37 passing tests. It covers the flow behavior, Candidate
+Field behavior, four visual comparisons, a Native/Motion performance check, and
+responsive/console checks. The separate accessibility command passes eight axe
+checks.
 
 Reference screenshots are stored in
 `tests/visual.spec.ts-snapshots/`:
@@ -45,7 +50,7 @@ pnpm test:visual:update
 
 Environment:
 
-- macOS 26.5.2, Darwin 25.5.0, arm64;
+- macOS 26.6.2, Darwin 25.6.0, arm64;
 - Chromium 149.0.7827.55 through Playwright 1.61.1;
 - default Playwright Desktop Chrome viewport for the long-task profile;
 - production command: `pnpm build`.
@@ -54,13 +59,15 @@ Build output:
 
 | Asset | Raw | Gzip |
 | --- | ---: | ---: |
-| JavaScript | 282,425 bytes | 88,093 bytes |
-| CSS | 9,410 bytes | 2,367 bytes |
+| JavaScript | 303.40 kB | 95.25 kB |
+| CSS | 26.67 kB | 5.19 kB |
 
 The production bundle is under the project limits of 100 kB gzip for
 JavaScript and 20 kB gzip for CSS. Motion is included on purpose so we can
-compare it with Native in the same demo. The Native-only build was smaller, so
-the extra size is a real trade-off, not a free improvement.
+compare it with Native in the same demo. A temporary local alias replacing
+Motion with a no-op implementation produced 73.37 kB gzip JavaScript, an
+estimated 21.88 kB gzip incremental Motion contribution for this build. This is
+an experiment-specific comparison, not a universal package-size claim.
 
 We also checked stage changes separately for Native and Motion:
 
