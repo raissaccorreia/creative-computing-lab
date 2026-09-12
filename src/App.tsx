@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import CandidateField from './demos/candidate-field/CandidateField'
 import CandidateFieldComparison from './demos/candidate-field/CandidateFieldComparison'
 import SearchFlowExplorer from './demos/search-flow/SearchFlowExplorer'
+import SystemAnatomy from './demos/system-anatomy/SystemAnatomy'
 import './App.css'
 
 type ThemeChoice = 'light' | 'dark' | 'system'
@@ -9,13 +10,14 @@ type ResolvedTheme = Exclude<ThemeChoice, 'system'>
 
 const THEME_STORAGE_KEY = 'creative-computing-lab-theme'
 
-type LabView = 'search-flow' | 'candidate-field' | 'candidate-field-comparison'
+type LabView = 'search-flow' | 'candidate-field' | 'candidate-field-comparison' | 'system-anatomy'
 
 function readLabView(): LabView {
   if (typeof window === 'undefined') return 'search-flow'
   const demo = new URLSearchParams(window.location.search).get('demo')
   if (demo === 'candidate-field-comparison') return 'candidate-field-comparison'
   if (demo === 'candidate-field') return 'candidate-field'
+  if (demo === 'system-anatomy') return 'system-anatomy'
   return 'search-flow'
 }
 
@@ -148,8 +150,16 @@ function App() {
         >
           Candidate Field Comparison
         </a>
+        <a
+          href="/?demo=system-anatomy"
+          aria-current={view === 'system-anatomy' ? 'page' : undefined}
+        >
+          System Anatomy
+        </a>
       </nav>
-      {view === 'candidate-field' ? (
+      {view === 'system-anatomy' ? (
+        <SystemAnatomy />
+      ) : view === 'candidate-field' ? (
         <CandidateField />
       ) : view === 'candidate-field-comparison' ? (
         <CandidateFieldComparison />

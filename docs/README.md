@@ -32,6 +32,11 @@ short orientation; the decisions and reusable methods live here.
   repeated comparison evidence, guarded stress boundaries, and renderer
   decision.
 
+## Investigation 03 — System Anatomy
+
+- [`system-anatomy-plan.md`](system-anatomy-plan.md) — the bounded question,
+  shared semantic contract, 2D baseline, and staged 3D comparison plan.
+
 ## How to add the next investigation
 
 Create one document in this folder for the investigation as a whole. Keep its

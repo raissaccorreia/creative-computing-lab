@@ -44,6 +44,12 @@ The bounded SVG/Canvas comparison harness is available at
 `/?demo=candidate-field-comparison`; its external Chrome profile is exposed as
 `pnpm stress:candidate-field`.
 
+The current investigation is **System Anatomy**, available at
+`/?demo=system-anatomy`. It starts with a screen-oriented 2D baseline and a
+keyboard-operable HTML node inspector; the planned 3D Spatial view must consume
+the same deterministic contract. Read the [investigation plan](docs/system-anatomy-plan.md)
+for scope, non-goals, and the staged comparison.
+
 ## Run it
 
 ```bash
