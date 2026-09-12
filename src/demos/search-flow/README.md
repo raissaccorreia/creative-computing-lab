@@ -41,3 +41,13 @@ pnpm build
 The data is intentionally synthetic. Do not turn this demo into a real search
 integration or copy its fixed dataset and coordinates into another product
 without testing the new context.
+
+## Phase E validation snapshot
+
+The current evidence record is in [`docs/search-flow-results.md`](../../../docs/search-flow-results.md).
+The current production bundle is 303.40 kB of JavaScript and 26.67 kB of CSS;
+the recorded gzip outputs are 95.25 kB and 5.19 kB respectively. The
+Native/Motion transition probe recorded zero long-task entries for both modes,
+and the four canonical visual comparisons use reduced motion and fixed
+synthetic states. Run `pnpm test:visual:update` only after reviewing the
+resulting screenshots.
