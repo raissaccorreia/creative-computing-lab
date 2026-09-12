@@ -27,6 +27,8 @@ The investigation notes and reusable working method are in [`docs/`](docs/):
   volumes.
 - [`docs/candidate-field-results.md`](docs/candidate-field-results.md) — the
   first SVG baseline and initial external-Chrome measurements.
+- [`docs/system-anatomy-plan.md`](docs/system-anatomy-plan.md) — the bounded
+  plan for comparing a 2D Screen presentation with an explicit 3D Spatial mode.
 
 ## Current experiment
 
@@ -43,6 +45,11 @@ The current investigation is **Candidate Field**, available at
 The bounded SVG/Canvas comparison harness is available at
 `/?demo=candidate-field-comparison`; its external Chrome profile is exposed as
 `pnpm stress:candidate-field`.
+
+The current **System Anatomy** baseline is available at
+`/?demo=system-anatomy`. It is a deterministic 2D Screen presentation with a
+keyboard-operable HTML node inspector. Spatial mode is intentionally not yet
+available; the follow-up must preserve the same semantic contract.
 
 ## Run it
 
