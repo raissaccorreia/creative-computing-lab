@@ -52,6 +52,15 @@ shared deterministic state, and a keyboard-operable HTML node inspector. The
 recorded conditions and limits are in
 [`docs/system-anatomy-results.md`](docs/system-anatomy-results.md).
 
+## Navigation shell
+
+The lab uses the shadcn/ui `Sidebar` primitives as a shared application shell.
+Desktop users get a persistent experiment index with the four public demos; on
+small screens the same index opens as a dismissible side sheet from the
+`Open experiments menu` toggle. The shell keeps the page and sidebar on the
+same full-width surface, with the existing turquoise accent tokens preserved
+across light and dark themes.
+
 ## Run it
 
 ```bash
