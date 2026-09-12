@@ -1,12 +1,17 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import ScreenRenderer from './ScreenRenderer'
 import SystemAnatomyInspector from './SystemAnatomyInspector'
 import { getSystemAnatomySnapshot, SYSTEM_ANATOMY_STATES } from './model'
 import type { SystemAnatomyState } from './types'
 import './system-anatomy.css'
 
+type SystemAnatomyMode = 'screen' | 'spatial'
+
+const SpatialRenderer = lazy(() => import('./SpatialRenderer'))
+
 function SystemAnatomy() {
   const [state, setState] = useState<SystemAnatomyState>('steady')
+  const [mode, setMode] = useState<SystemAnatomyMode>('screen')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const snapshot = useMemo(() => getSystemAnatomySnapshot(state), [state])
 
@@ -22,21 +27,25 @@ function SystemAnatomy() {
 
       <div className="system-anatomy__controls">
         <fieldset>
+          <legend>Presentation</legend>
+          <div className="system-anatomy__mode-options">
+            <label>
+              <input type="radio" name="system-anatomy-mode" value="screen" checked={mode === 'screen'} onChange={() => setMode('screen')} />
+              <span><strong>2D Screen</strong><small>screen-oriented baseline</small></span>
+            </label>
+            <label>
+              <input type="radio" name="system-anatomy-mode" value="spatial" checked={mode === 'spatial'} onChange={() => setMode('spatial')} />
+              <span><strong>3D Spatial</strong><small>pointer/touch enhancement</small></span>
+            </label>
+          </div>
+        </fieldset>
+        <fieldset>
           <legend>System state</legend>
           <div className="system-anatomy__state-options">
             {SYSTEM_ANATOMY_STATES.map((option) => (
               <label key={option.value}>
-                <input
-                  type="radio"
-                  name="system-anatomy-state"
-                  value={option.value}
-                  checked={state === option.value}
-                  onChange={() => setState(option.value)}
-                />
-                <span>
-                  <strong>{option.label}</strong>
-                  <small>{option.description}</small>
-                </span>
+                <input type="radio" name="system-anatomy-state" value={option.value} checked={state === option.value} onChange={() => setState(option.value)} />
+                <span><strong>{option.label}</strong><small>{option.description}</small></span>
               </label>
             ))}
           </div>
@@ -51,10 +60,16 @@ function SystemAnatomy() {
         <figure className="system-anatomy__figure">
           <div className="system-anatomy__figure-heading">
             <span>Current presentation</span>
-            <strong>2D Screen</strong>
+            <strong data-testid="system-anatomy-mode">{mode === 'screen' ? '2D Screen' : '3D Spatial'}</strong>
           </div>
           <div className="system-anatomy__surface">
-            <ScreenRenderer snapshot={snapshot} selectedId={selectedId} onSelect={setSelectedId} />
+            {mode === 'screen' ? (
+              <ScreenRenderer snapshot={snapshot} selectedId={selectedId} onSelect={setSelectedId} />
+            ) : (
+              <Suspense fallback={<p className="system-anatomy__spatial-fallback">Loading the explicit 3D Spatial view…</p>}>
+                <SpatialRenderer snapshot={snapshot} selectedId={selectedId} onSelect={setSelectedId} />
+              </Suspense>
+            )}
           </div>
           <figcaption>
             Lines show deterministic relationships. Status is repeated as text and shape in each node; use the inspector for the complete semantic explanation.
@@ -65,7 +80,7 @@ function SystemAnatomy() {
       </div>
 
       <p className="system-anatomy__note">
-        2D Screen is the default baseline. The 3D Spatial view will be an explicit enhancement; it must not replace this semantic inspection path or imply WebXR/headset support.
+        The switch is explicit: 2D Screen is the baseline and 3D Spatial is a pointer/touch enhancement. Neither mode replaces the semantic inspection path or implies WebXR/headset support.
       </p>
     </section>
   )
