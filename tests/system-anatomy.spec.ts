@@ -6,7 +6,7 @@ test('System Anatomy defaults to the 2D Screen baseline', async ({ page }) => {
 
   await expect(page.getByRole('heading', { level: 2, name: 'System Anatomy' })).toBeVisible()
   await expect(page.getByTestId('system-anatomy-screen')).toBeVisible()
-  await expect(page.getByText('2D Screen', { exact: true })).toBeVisible()
+  await expect(page.getByTestId('system-anatomy-mode')).toHaveText('2D Screen')
   await expect(page.getByTestId('system-anatomy-summary')).toContainText(
     'Steady state: All paths are available',
   )
@@ -34,6 +34,32 @@ test('System Anatomy preserves deterministic identity, selection, and state expl
   await expect(page.getByTestId('system-anatomy-details')).toContainText(
     'unavailable, so its path cannot complete normally',
   )
+})
+
+test('System Anatomy explicitly switches to 3D Spatial without losing the semantic selection path', async ({ page }) => {
+  const consoleErrors: string[] = []
+  const pageErrors: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
+  page.on('pageerror', (error) => pageErrors.push(error.message))
+  await page.goto('/?demo=system-anatomy')
+
+  await page.getByRole('button', { name: /Select Gateway/i }).last().click()
+  await expect(page.getByTestId('system-anatomy-details')).toContainText('gateway')
+
+  await page.getByRole('radio', { name: '3D Spatial' }).check()
+  await expect(page.getByTestId('system-anatomy-mode')).toHaveText('3D Spatial')
+  await expect(page.getByTestId('system-anatomy-spatial')).toHaveAttribute('data-node-count', '8')
+  await expect(page.getByTestId('system-anatomy-details')).toContainText('gateway')
+
+  await page.getByRole('radio', { name: 'Degraded' }).check()
+  await expect(page.getByTestId('system-anatomy-details')).toContainText('Attention')
+  await page.getByRole('radio', { name: '2D Screen' }).check()
+  await expect(page.getByTestId('system-anatomy-screen')).toBeVisible()
+  await expect(page.getByTestId('system-anatomy-details')).toContainText('gateway')
+  expect(consoleErrors).toEqual([])
+  expect(pageErrors).toEqual([])
 })
 
 test('System Anatomy has no detectable accessibility violations @a11y', async ({ page }) => {
