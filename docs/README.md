@@ -36,6 +36,8 @@ short orientation; the decisions and reusable methods live here.
 
 - [`system-anatomy-plan.md`](system-anatomy-plan.md) — the question, bounded
   synthetic model, 2D/3D comparison contract, and staged validation plan.
+- [`system-anatomy-results.md`](system-anatomy-results.md) — the recorded
+  validation conditions, evidence, limitations, and final decision.
 
 ## How to add the next investigation
 
