@@ -27,6 +27,8 @@ The investigation notes and reusable working method are in [`docs/`](docs/):
   volumes.
 - [`docs/candidate-field-results.md`](docs/candidate-field-results.md) — the
   first SVG baseline and initial external-Chrome measurements.
+- [`docs/system-anatomy-plan.md`](docs/system-anatomy-plan.md) — the bounded
+  plan for comparing a 2D Screen presentation with an explicit 3D Spatial mode.
 
 ## Current experiment
 
@@ -43,6 +45,21 @@ The current investigation is **Candidate Field**, available at
 The bounded SVG/Canvas comparison harness is available at
 `/?demo=candidate-field-comparison`; its external Chrome profile is exposed as
 `pnpm stress:candidate-field`.
+
+The current **System Anatomy** investigation is available at
+`/?demo=system-anatomy`. It contains an explicit 2D Screen / 3D Spatial switch,
+shared deterministic state, and a keyboard-operable HTML node inspector. The
+recorded conditions and limits are in
+[`docs/system-anatomy-results.md`](docs/system-anatomy-results.md).
+
+## Navigation shell
+
+The lab uses the shadcn/ui `Sidebar` primitives as a shared application shell.
+Desktop users get a persistent experiment index with the four public demos; on
+small screens the same index opens as a dismissible side sheet from the
+`Open experiments menu` toggle. The shell keeps the page and sidebar on the
+same full-width surface, with the existing turquoise accent tokens preserved
+across light and dark themes.
 
 ## Run it
 
@@ -62,6 +79,8 @@ pnpm test:a11y
 pnpm test:visual
 # Uses external Google Chrome with a temporary profile for the bounded comparison.
 pnpm stress:candidate-field
+# Uses external Google Chrome with a temporary no-login profile for System Anatomy evidence.
+pnpm validate:system-anatomy
 ```
 
 All public examples use neutral synthetic data. This repository is a learning
