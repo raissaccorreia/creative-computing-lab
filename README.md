@@ -46,10 +46,11 @@ The bounded SVG/Canvas comparison harness is available at
 `/?demo=candidate-field-comparison`; its external Chrome profile is exposed as
 `pnpm stress:candidate-field`.
 
-The current **System Anatomy** baseline is available at
-`/?demo=system-anatomy`. It is a deterministic 2D Screen presentation with a
-keyboard-operable HTML node inspector. Spatial mode is intentionally not yet
-available; the follow-up must preserve the same semantic contract.
+The current **System Anatomy** investigation is available at
+`/?demo=system-anatomy`. It contains an explicit 2D Screen / 3D Spatial switch,
+shared deterministic state, and a keyboard-operable HTML node inspector. The
+recorded conditions and limits are in
+[`docs/system-anatomy-results.md`](docs/system-anatomy-results.md).
 
 ## Run it
 
@@ -69,6 +70,8 @@ pnpm test:a11y
 pnpm test:visual
 # Uses external Google Chrome with a temporary profile for the bounded comparison.
 pnpm stress:candidate-field
+# Uses external Google Chrome with a temporary no-login profile for System Anatomy evidence.
+pnpm validate:system-anatomy
 ```
 
 All public examples use neutral synthetic data. This repository is a learning
