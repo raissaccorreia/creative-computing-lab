@@ -88,3 +88,56 @@ as recovering. The rules and labels are local, deterministic, and domain-neutral
 The investigation is successful only if the 3D result is judged against the
 same semantic contract as the 2D baseline. Visual novelty alone is not evidence
 of added understanding.
+
+## Follow-up question: trace a surviving path in Degraded
+
+**Question:** When topology and status cues are equally available in both
+presentations, does 3D Spatial help a first-time reader identify a viable
+end-to-end route through the Degraded system more accurately than 2D Screen?
+
+### Task and answer key
+
+Show the Degraded snapshot and ask the reader to select the route from Request
+input to Response output that does not use a blocked node. The expected route is
+Request input → Gateway → Router → Work queue → Worker A → Result store →
+Response output; Worker B is blocked.
+
+The prompt must not reveal the answer. In particular, replace or suppress the
+current explanatory Degraded summary during this task; it already says that the
+secondary worker is blocked. Present node names and status cues in both modes,
+because the current 2D diagram shows these inside the graphic while 3D relies on
+the HTML inspector. If those cues cannot be made equivalent, do not interpret a
+difference as an effect of spatial layout.
+
+### Comparison and measures
+
+- Keep the synthetic graph, Degraded state, task wording, and available
+  information the same in both modes.
+- Use the default fixed camera in 3D and disable rotation during the task so the
+  comparison isolates the presentation rather than added manipulation.
+- Counterbalance which mode is shown first and report the order with the
+  results.
+- Use exact ordered-route correctness as the primary measure. Also record
+  whether the reader identifies Worker B as blocked, task completion time, and
+  whether they used the HTML inspector.
+- Keep the HTML inspector, keyboard operation, and equivalent textual status
+  information available in both modes. The visual task must not become the only
+  way to complete the task.
+
+### Success criterion and decision rule
+
+The task is usable as a comparison only when the route has an unambiguous answer
+and both modes expose the same task-relevant labels and status cues without
+giving away the answer. Report raw correct counts, completion times, mode order,
+and inspector use for each presentation.
+
+Treat 3D as evidence of added value only if it produces higher exact-route
+accuracy than 2D while preserving Worker B identification and access to the
+semantic inspection path. If accuracy is equal or lower, keep 2D as the default
+and reformulate or archive the follow-up. Any small pilot is exploratory; set
+the sample and minimum meaningful difference before collecting observations,
+and do not generalize beyond its participants or conditions.
+
+This follow-up defines the question and comparison contract only. Human
+evaluation, participant data collection, a default-mode change, and
+implementation work are outside this planning step.
