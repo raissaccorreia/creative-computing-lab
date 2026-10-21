@@ -39,6 +39,12 @@ short orientation; the decisions and reusable methods live here.
 - [`system-anatomy-results.md`](system-anatomy-results.md) — the recorded
   validation conditions, evidence, limitations, and final decision.
 
+## Investigation 04 — Material Lab
+
+- [`material-lab-plan.md`](material-lab-plan.md) — the staged scope for
+  parameterized materials, a small procedural shader, and a more visually
+  composed demonstration.
+
 ## How to add the next investigation
 
 Create one document in this folder for the investigation as a whole. Keep its

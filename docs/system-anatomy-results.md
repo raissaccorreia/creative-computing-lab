@@ -80,8 +80,10 @@ Chrome profile, not a production hardware GPU.
 
 ## Decision
 
-Reformulate: keep the explicit 3D Spatial mode as a bounded exploratory adapter
-and preserve 2D Screen as the default, but do not claim that this implementation
-improves understanding. The next investigation should test a concrete spatial
-comprehension task with human-observable success measures before changing the
-default or expanding the scene.
+Incorporate: keep the explicit 3D Spatial mode as an exploratory presentation
+and preserve 2D Screen as the default. In the recorded local runs, 3D had a much
+higher initial load and mount cost, which supports making it an explicit choice
+for people who want to explore the scene. This investigation verified technical
+state and semantic-path parity, not human comprehension. This solo lab will not
+run a participant study or claim a learning benefit. The next investigation is
+Material Lab.

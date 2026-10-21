@@ -53,7 +53,9 @@ Review the initial page and the five Search Flow stages at 390px, 820px,
 2. **Motion Comparer** — isolate Native and Motion trade-offs when the shared
    Search Flow comparison needs its own reusable method.
 3. **System Anatomy** — introduce a small interactive 3D scene.
-4. **Material Lab** — study parameterized materials and shaders.
+4. **Material Lab** — study parameterized materials and a custom shader, then
+   use both in a more visually composed scene. See
+   [`material-lab-plan.md`](material-lab-plan.md) for the staged scope.
 5. **GPU Ranking Field** — compare CPU, WebGL, and WebGPU only when scale
    justifies the added complexity.
 6. **Spatial Computing Lab** — optional work after the 3D foundation is stable.
