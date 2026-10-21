@@ -12,33 +12,29 @@ success criterion, and an honest record of evidence and limits.
 - Candidate Field's SVG baseline, Canvas adapter, comparison harness, and
   evidence are complete (PRs #6–#9). SVG remains the default for the tested
   product range. Canvas is a conditional option for a real dense workload.
-- System Anatomy's 2D baseline, explicit 3D mode, and results are complete. The
-  recorded decision is to keep 2D as the default and reformulate the question
-  before claiming that spatial presentation improves understanding.
+- System Anatomy's 2D baseline, explicit 3D mode, and results are complete. Keep
+  2D as the default and 3D as an exploratory presentation. The 3D mode has a
+  higher local load and mount cost, so it remains an explicit choice for people
+  who want to explore the scene. This solo lab will not run a human comprehension
+  study or claim a learning benefit.
 - The responsive lab shell was merged in PR #17.
 
-The next investigation is the System Anatomy follow-up documented in
-[`system-anatomy-plan.md`](system-anatomy-plan.md). Its question, task, measures,
-and decision rule are defined; implementation and evaluation have not started.
+The next investigation is Material Lab, described in
+[`material-lab-plan.md`](material-lab-plan.md). It studies adjustable surface
+materials and a small custom shader, then develops the scene into a more
+visually rich and polished demonstration.
 
 ## Next
 
-### System Anatomy — define a comprehension task
+### Material Lab — make materials and shaders visible and explainable
 
-**Status:** question and comparison contract defined; implementation and
-evaluation not started.
+**Status:** scope and staged direction defined; implementation has not started.
 
-The defined task uses the Degraded snapshot: identify the blocked Worker B and
-select the valid route from Request input to Response output through Worker A.
-Exact ordered-route accuracy is the primary measure; blocked-node accuracy,
-completion time, mode order, and inspector use are also recorded. The task and
-comparison controls are specified in
-[`system-anatomy-plan.md`](system-anatomy-plan.md#follow-up-question-trace-a-surviving-path-in-degraded).
-
-Before evaluation, set the sample and minimum meaningful difference, and make
-task-relevant labels and status cues equivalent across modes without exposing
-the answer. Do not expand the scene or change the default mode unless the
-comparison supports added value.
+The investigation has three staged slices: controls for a Three.js physical
+material; one small procedural shader with parameters and an explanation; then
+a more composed and visually ambitious scene using those pieces. The scene
+building stage is part of Material Lab. Keep the demonstration understandable,
+accessible, responsive, and measured as its visual complexity grows.
 
 ## Completed investigation decisions
 
@@ -60,22 +56,22 @@ need warrants it.
 
 ### System Anatomy
 
-**Decision: Reformulate.** Keep 2D Screen as the default and 3D Spatial as a
-bounded exploratory mode. Existing parity and local performance evidence do
-not establish a human comprehension benefit. The queued follow-up must measure
-a concrete task before expanding the scene or changing defaults.
+**Decision: Incorporate.** Keep 2D Screen as the default and 3D Spatial as an
+explicit exploratory mode. Local results show a substantially higher initial
+load and mount cost for 3D in the tested conditions, so it is an opt-in way to
+explore the scene. The investigation verified technical state and semantic-path
+parity; it did not test human comprehension. This lab will not run a participant
+study or claim learning outcomes.
 
 ## Later candidates
 
 These are options, not commitments to adopt every technology:
 
-1. **Material Lab** — study parameterized materials or shaders with an
-   accessible explanation or fallback.
-2. **GPU Ranking Field** — compare CPU, WebGL, and WebGPU only if a measured
+1. **GPU Ranking Field** — compare CPU, WebGL, and WebGPU only if a measured
    workload justifies the added scale and complexity.
-3. **Spatial Computing Lab** — consider only after a stable 3D foundation and a
+2. **Spatial Computing Lab** — consider only after a stable 3D foundation and a
    task with evidence of value.
-4. **Consolidation** — collect reusable renderer contracts, measurement
+3. **Consolidation** — collect reusable renderer contracts, measurement
    patterns, accessibility techniques, and explicit failure boundaries when
    another project needs them.
 
