@@ -201,7 +201,7 @@ export function LabShell({
             </nav>
             <div className="lab-sidebar__note">
               <span className="lab-sidebar__note-dot" aria-hidden="true" />
-              <p>Four public experiments. Synthetic data only.</p>
+              <p>Five public experiments. Synthetic data only.</p>
             </div>
           </SidebarContent>
           <SidebarFooter className="lab-sidebar__footer">
