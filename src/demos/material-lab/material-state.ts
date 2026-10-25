@@ -4,8 +4,6 @@ export type MaterialValues = {
   metalness: number
 }
 
-export type MaterialPreviewMode = 'pbr' | 'shader'
-
 export const REFERENCE_MATERIAL: MaterialValues = {
   color: '#86aaa5',
   roughness: 0.34,
