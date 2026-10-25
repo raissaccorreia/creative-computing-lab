@@ -82,22 +82,57 @@ measured.
 
 ### Slice 3 — Compose a richer visual demonstration
 
-Develop the single-object bench into a more deliberate scene that demonstrates
-the material and shader together. Add only scene elements that make their
-surface response easier to see, such as a small set of contrasting forms,
-clearer light placement, controlled background values, and a considered camera
-composition. Establish visual hierarchy, polish spacing and typography around
-the controls, and make the result feel like a finished web experience rather
-than a raw graphics test page.
+PR3 composes both render types in one studio scene. It shows the same torus knot
+with the PBR material and the wave shader for a direct comparison, plus a
+smaller PBR sphere to show the reflections on a smooth form. A shared base color
+feeds all specimens. Roughness and metalness affect the two PBR forms; pattern
+scale affects the shader form. A short HTML legend identifies each role and
+its controls.
 
-Keep the main comparison legible, preserve the accessible HTML controls and
-explanation, and keep the scene responsive. Record the added asset, geometry,
-shader, and bundle costs. If complexity makes the material behavior harder to
-read or pushes the scene beyond its measured budget, simplify the composition.
+The visual thesis is a quiet editorial studio still life, with reflective
+surfaces and a graphic wave pattern as the main contrast. The first viewport
+contains the title, composed specimen scene, a compact key, and the parameter
+inspector. The reset control closes the interaction. Parameter changes update
+the same static scene without continuous animation.
 
-**Success check:** a reviewer can still identify the parameter being explored
-and see its effect, while the composed scene has a clear visual hierarchy at
-the named viewport sizes and meets the documented local performance budget.
+Use one renderer, the existing environment, a placed key and rim light, and a
+camera framed for the wide and narrow layouts. Keep the current controlled
+background. When WebGL is unavailable, show separate CSS material and band
+samples with the same labels and values. Keep keyboard focus, descriptions,
+reset, reduced-motion behavior, and responsive layout.
+
+**Out of scope:** imported assets, additional dependencies, post-processing,
+continuous animation, and a second WebGL renderer.
+
+**Success check:** the PBR reflections and shader bands are both visible in
+the same frame. Their labeled controls update the intended specimens and reset
+to the reference values. The composition stays clear at wide and narrow
+viewports and retains the labeled fallback.
+
+**Local result:** the final scene uses two torus-knot meshes sharing one
+geometry, one shared `MeshStandardMaterial` across the PBR knot and smaller
+sphere, one `ShaderMaterial` on the other knot, one renderer, one environment,
+and placed key and rim lights. The knots separate and scale down at narrow
+aspect ratios; the shader and PBR specimens remain visible together without
+continuous animation.
+All four focused Playwright checks pass, covering parameter mapping and reset,
+first-render readiness, the three-sample WebGL fallback, accessibility, and
+390 px / 320 px viewport containment. `pnpm lint`, `pnpm typecheck`, and
+`pnpm build` pass.
+
+The production build emits the MaterialStage module at 8.48 KB minified / 3.38
+KB gzip. Three.js remains in a lazy-loaded chunk at 541.14 KB minified / 134.08
+KB gzip, so Vite's over-500 KB chunk warning remains. No dependency or external
+asset was added. In one local Playwright-managed Chromium 149.0.7827.55 run on
+a Mac laptop with macOS 27.0.1, the first completed scene render was recorded
+at 1,318.8 ms from navigation start at a 1280 × 720 viewport. The browser
+reported `MacIntel`; the public result records only the device class. This is
+a single local observation, not a frame-time or cross-device performance
+result.
+
+The fallback preserves the shared color, pattern, values, labels, and controls
+as CSS samples. It does not reproduce curved studio reflections or the shader's
+surface shading. No staging deployment is configured for this repository.
 
 ## Accessibility and fallback
 
@@ -141,5 +176,9 @@ this demonstration.
 
 ## Decision
 
-Pending implementation and local validation. Decide whether to continue,
-incorporate, reformulate, or archive after the three slices have evidence.
+**Incorporate selectively.** Reuse the native parameter controls, visible
+values, reset behavior, and paired HTML explanation/fallback pattern when a
+graphics experiment needs them. Keep the specific torus-knot and sphere studio
+scene as a demonstration, not a general material editor or renderer library.
+The single local first-render observation and bundle sizes inform this
+implementation only; frame-time and cross-device performance remain unmeasured.

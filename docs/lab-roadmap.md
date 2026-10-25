@@ -19,24 +19,21 @@ success criterion, and an honest record of evidence and limits.
   study or claim a learning benefit.
 - The responsive lab shell was merged in PR #17.
 
-The next investigation is Material Lab, described in
-[`material-lab-plan.md`](material-lab-plan.md). It studies adjustable surface
-materials and a small custom shader, then develops the scene into a more
-visually rich and polished demonstration.
-
-## Next
-
-### Material Lab — make materials and shaders visible and explainable
-
-**Status:** slices 1 and 2 are implemented; the richer scene remains planned.
-
-The investigation has three staged slices: controls for a Three.js physical
-material; one small procedural shader with parameters and an explanation; then
-a more composed and visually ambitious scene using those pieces. The scene
-building stage is part of Material Lab. Keep the demonstration understandable,
-accessible, responsive, and measured as its visual complexity grows.
+Material Lab has completed all three planned slices. The composed scene, local
+evidence, limitations, and final decision are recorded in
+[`material-lab-plan.md`](material-lab-plan.md).
 
 ## Completed investigation decisions
+
+### Material Lab
+
+**Decision: Incorporate selectively.** Reuse the native parameter controls,
+visible values, reset behavior, and HTML explanation/fallback pattern when a
+graphics experiment needs them. Keep this specific torus-knot and sphere studio
+scene as a demonstration rather than turning it into a general material editor
+or renderer library. Three.js remains lazy-loaded; its production chunk is
+still above Vite's 500 KB warning threshold. Local first-render timing is
+evidence from one Mac/Chromium run, not a cross-device performance claim.
 
 ### Search Flow Explorer
 

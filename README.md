@@ -54,10 +54,13 @@ shared deterministic state, and a keyboard-operable HTML node inspector. The
 recorded conditions and limits are in
 [`docs/system-anatomy-results.md`](docs/system-anatomy-results.md).
 
-**Material Lab** is the current investigation at `/?demo=material-lab`. Its
-first two slices explore base color, roughness, and metalness on one fixed
-Three.js specimen, then switch that specimen to a static procedural wave shader.
-A richer composition is planned next.
+The completed **Material Lab** is available at `/?demo=material-lab`. Its final
+composition shows a PBR torus knot, a matching torus knot with a static
+wave shader, and a smaller PBR sphere in one Three.js scene. Base color is
+shared; roughness and metalness adjust both PBR forms, while pattern scale
+adjusts the shader form. Native HTML controls and a labeled CSS fallback remain
+available when WebGL cannot start. Local results, limitations, and the reuse
+decision are in [`docs/material-lab-plan.md`](docs/material-lab-plan.md).
 
 ## Navigation shell
 
