@@ -1,20 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
-import { REFERENCE_MATERIAL } from './material-state'
+import {
+  REFERENCE_MATERIAL,
+  REFERENCE_PATTERN_SCALE,
+  type MaterialPreviewMode,
+} from './material-state'
+import { WAVE_FRAGMENT_SHADER, WAVE_VERTEX_SHADER } from './material-shader'
 
 type MaterialStageProps = {
+  mode: MaterialPreviewMode
   color: string
   roughness: number
   metalness: number
+  patternScale: number
 }
 
 type MaterialScene = {
-  meshMaterial: THREE.MeshStandardMaterial
+  specimen: THREE.Mesh
+  pbrMaterial: THREE.MeshStandardMaterial
+  waveMaterial: THREE.ShaderMaterial
   render: () => void
 }
 
-function MaterialStage({ color, roughness, metalness }: MaterialStageProps) {
+function MaterialStage({ mode, color, roughness, metalness, patternScale }: MaterialStageProps) {
   const hostRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<MaterialScene | null>(null)
   const [unavailable, setUnavailable] = useState(false)
@@ -27,7 +36,8 @@ function MaterialStage({ color, roughness, metalness }: MaterialStageProps) {
     let environmentTarget: THREE.WebGLRenderTarget | null = null
     let environmentGenerator: THREE.PMREMGenerator | null = null
     let geometry: THREE.TorusKnotGeometry | null = null
-    let meshMaterial: THREE.MeshStandardMaterial | null = null
+    let pbrMaterial: THREE.MeshStandardMaterial | null = null
+    let waveMaterial: THREE.ShaderMaterial | null = null
     let room: RoomEnvironment | null = null
     let resizeObserver: ResizeObserver | null = null
     let canvas: HTMLCanvasElement | null = null
@@ -50,8 +60,17 @@ function MaterialStage({ color, roughness, metalness }: MaterialStageProps) {
       scene.environment = environmentTarget.texture
 
       geometry = new THREE.TorusKnotGeometry(0.92, 0.27, 224, 32, 2, 3)
-      meshMaterial = new THREE.MeshStandardMaterial({ ...REFERENCE_MATERIAL })
-      const specimen = new THREE.Mesh(geometry, meshMaterial)
+      pbrMaterial = new THREE.MeshStandardMaterial({ ...REFERENCE_MATERIAL })
+      waveMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          uBaseColor: { value: new THREE.Color(REFERENCE_MATERIAL.color) },
+          uPatternScale: { value: REFERENCE_PATTERN_SCALE },
+        },
+        vertexShader: WAVE_VERTEX_SHADER,
+        fragmentShader: WAVE_FRAGMENT_SHADER,
+      })
+
+      const specimen = new THREE.Mesh(geometry, pbrMaterial)
       specimen.rotation.set(-0.2, 0.12, 0.1)
       scene.add(specimen)
 
@@ -71,7 +90,7 @@ function MaterialStage({ color, roughness, metalness }: MaterialStageProps) {
         render()
       }
 
-      const materialScene: MaterialScene = { meshMaterial, render }
+      const materialScene: MaterialScene = { specimen, pbrMaterial, waveMaterial, render }
       sceneRef.current = materialScene
 
       resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resize)
@@ -84,7 +103,8 @@ function MaterialStage({ color, roughness, metalness }: MaterialStageProps) {
         resizeObserver?.disconnect()
         window.removeEventListener('resize', resize)
         geometry?.dispose()
-        meshMaterial?.dispose()
+        pbrMaterial?.dispose()
+        waveMaterial?.dispose()
         environmentTarget?.dispose()
         environmentGenerator?.dispose()
         room?.traverse((object) => {
@@ -102,7 +122,8 @@ function MaterialStage({ color, roughness, metalness }: MaterialStageProps) {
       environmentTarget?.dispose()
       environmentGenerator?.dispose()
       geometry?.dispose()
-      meshMaterial?.dispose()
+      pbrMaterial?.dispose()
+      waveMaterial?.dispose()
       room?.traverse((object) => {
         if (object instanceof THREE.Mesh || object instanceof THREE.InstancedMesh) {
           object.geometry.dispose()
@@ -120,13 +141,22 @@ function MaterialStage({ color, roughness, metalness }: MaterialStageProps) {
   useEffect(() => {
     const materialScene = sceneRef.current
     if (!materialScene) return
-    materialScene.meshMaterial.color.set(color)
-    materialScene.meshMaterial.roughness = roughness
-    materialScene.meshMaterial.metalness = metalness
+    materialScene.pbrMaterial.color.set(color)
+    materialScene.pbrMaterial.roughness = roughness
+    materialScene.pbrMaterial.metalness = metalness
+    materialScene.waveMaterial.uniforms.uBaseColor.value.set(color)
+    materialScene.waveMaterial.uniforms.uPatternScale.value = patternScale
+    materialScene.specimen.material = mode === 'shader'
+      ? materialScene.waveMaterial
+      : materialScene.pbrMaterial
     materialScene.render()
-  }, [color, roughness, metalness])
+  }, [mode, color, roughness, metalness, patternScale])
 
-  const accessibleLabel = `Sculptural material specimen. Base color ${color}, roughness ${roughness.toFixed(2)}, metalness ${metalness.toFixed(2)}. The adjacent controls adjust these properties.`
+  const accessibleLabel = mode === 'shader'
+    ? `Sculptural material specimen with a static procedural wave shader. Pattern scale ${patternScale} controls how often soft bands repeat across the surface. Base color ${color}.`
+    : `Sculptural material specimen. Base color ${color}, roughness ${roughness.toFixed(2)}, metalness ${metalness.toFixed(2)}. The adjacent controls adjust these properties.`
+  const fallbackBandStep = Math.max(7, Math.round(34 - patternScale * 1.5))
+  const fallbackPattern = `repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0 ${fallbackBandStep}px, transparent ${fallbackBandStep}px ${fallbackBandStep * 2}px), repeating-linear-gradient(-135deg, rgba(18, 37, 34, 0.18) 0 ${fallbackBandStep}px, transparent ${fallbackBandStep}px ${fallbackBandStep * 2}px)`
 
   return (
     <div
@@ -136,12 +166,27 @@ function MaterialStage({ color, roughness, metalness }: MaterialStageProps) {
       <div ref={hostRef} className="material-lab__render-host" role="img" aria-label={accessibleLabel} />
       {unavailable && (
         <div className="material-lab__fallback" role="img" aria-label={accessibleLabel}>
-          <span className="material-lab__fallback-specimen" style={{ backgroundColor: color }} aria-hidden="true" />
-          <p>Surface preview</p>
-          <small>Current base color is shown here. Use the controls and values to inspect the full material.</small>
+          <span
+            className={`material-lab__fallback-specimen${mode === 'shader' ? ' material-lab__fallback-specimen--shader' : ''}`}
+            style={{
+              backgroundColor: color,
+              backgroundImage: mode === 'shader' ? fallbackPattern : undefined,
+            }}
+            aria-hidden="true"
+          />
+          <p>{mode === 'shader' ? 'Wave shader preview' : 'Surface preview'}</p>
+          <small>
+            {mode === 'shader'
+              ? `WebGL is unavailable. This HTML preview approximates the ${patternScale} soft bands over ${color}.`
+              : `WebGL is unavailable. The current base color is ${color}; material controls remain available.`}
+          </small>
         </div>
       )}
-      {unavailable && <p className="material-lab__fallback-status" role="status">WebGL is unavailable. The material controls remain usable.</p>}
+      {unavailable && (
+        <p className="material-lab__fallback-status" role="status">
+          WebGL is unavailable. The mode switch and HTML controls remain usable.
+        </p>
+      )}
     </div>
   )
 }
