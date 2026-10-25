@@ -54,7 +54,7 @@ export const LAB_EXPERIMENTS: LabExperiment[] = [
   {
     id: 'material-lab',
     label: 'Material Lab',
-    description: 'Explore color, roughness, and metalness',
+    description: 'Explore PBR surfaces and shader patterns',
     href: '/?demo=material-lab',
     icon: Orbit,
   },

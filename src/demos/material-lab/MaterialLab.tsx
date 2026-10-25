@@ -1,11 +1,18 @@
 import { lazy, Suspense, useState } from 'react'
 import './material-lab.css'
-import { REFERENCE_MATERIAL, type MaterialValues } from './material-state'
+import {
+  REFERENCE_MATERIAL,
+  REFERENCE_PATTERN_SCALE,
+  type MaterialPreviewMode,
+  type MaterialValues,
+} from './material-state'
 
 const MaterialStage = lazy(() => import('./MaterialStage'))
 
 function MaterialLab() {
   const [material, setMaterial] = useState<MaterialValues>(REFERENCE_MATERIAL)
+  const [previewMode, setPreviewMode] = useState<MaterialPreviewMode>('pbr')
+  const [patternScale, setPatternScale] = useState(REFERENCE_PATTERN_SCALE)
 
   const update = <K extends keyof MaterialValues>(key: K, value: MaterialValues[K]) => {
     setMaterial((current) => ({ ...current, [key]: value }))
@@ -21,34 +28,55 @@ function MaterialLab() {
             Shape the way light moves across a surface.
           </p>
         </div>
-        <p className="material-lab__header-note">Three.js <span>·</span> Metallic-roughness PBR</p>
+        <p className="material-lab__header-note">Three.js <span>·</span> PBR + GLSL shader</p>
       </header>
 
       <div className="material-lab__workspace">
         <figure className="material-lab__stage">
           <figcaption className="material-lab__stage-meta">
             <span>Reference specimen</span>
-            <span>MeshStandardMaterial</span>
+            <span>{previewMode === 'shader' ? 'ShaderMaterial' : 'MeshStandardMaterial'}</span>
           </figcaption>
           <div className="material-lab__stage-viewport">
             <Suspense fallback={<div className="material-lab__stage-loading" aria-live="polite">Preparing the light studio…</div>}>
               <MaterialStage
+                mode={previewMode}
                 color={material.color}
                 roughness={material.roughness}
                 metalness={material.metalness}
+                patternScale={patternScale}
               />
             </Suspense>
             <span className="material-lab__stage-index" aria-hidden="true">01</span>
           </div>
           <p className="material-lab__stage-caption">
-            A fixed studio environment makes each material change easier to see.
+            {previewMode === 'shader'
+              ? 'The shader uses surface coordinates to bend a repeating wave into bands. Pattern scale controls their frequency.'
+              : 'A fixed studio environment makes each material change easier to see.'}
           </p>
         </figure>
 
         <aside className="material-lab__controls" aria-labelledby="material-controls-title">
           <div className="material-lab__controls-heading">
-            <p className="material-lab__eyebrow">Adjust the surface</p>
-            <h2 id="material-controls-title">Material properties</h2>
+            <p className="material-lab__eyebrow">Choose a render mode</p>
+            <h2 id="material-controls-title">Surface controls</h2>
+          </div>
+
+          <div className="material-lab__mode-switch" role="group" aria-label="Preview mode">
+            <button
+              type="button"
+              aria-pressed={previewMode === 'pbr'}
+              onClick={() => setPreviewMode('pbr')}
+            >
+              PBR material
+            </button>
+            <button
+              type="button"
+              aria-pressed={previewMode === 'shader'}
+              onClick={() => setPreviewMode('shader')}
+            >
+              Wave shader
+            </button>
           </div>
 
           <div className="material-lab__control-list">
@@ -64,14 +92,15 @@ function MaterialLab() {
                 onChange={(event) => update('color', event.currentTarget.value)}
                 aria-describedby="material-color-help"
               />
-              <p id="material-color-help">The surface color before light and reflections change its appearance.</p>
+              <p id="material-color-help">The starting color for both render modes, before their surface effects are applied.</p>
             </div>
 
             <RangeControl
               id="material-roughness"
               label="Roughness"
               value={material.roughness}
-              help="Lower values create tighter highlights. Higher values spread reflections across the surface."
+              help="Lower values create tighter highlights. Higher values spread reflections. Available in PBR material mode."
+              disabled={previewMode !== 'pbr'}
               onChange={(value) => update('roughness', value)}
             />
 
@@ -79,25 +108,50 @@ function MaterialLab() {
               id="material-metalness"
               label="Metalness"
               value={material.metalness}
-              help="Controls how the surface responds as a metal, from non-metal at 0 to metal at 1."
+              help="Controls the metallic response from non-metal at 0 to metal at 1. Available in PBR material mode."
+              disabled={previewMode !== 'pbr'}
               onChange={(value) => update('metalness', value)}
+            />
+
+            <RangeControl
+              id="material-pattern-scale"
+              label="Pattern scale"
+              value={patternScale}
+              min={2}
+              max={14}
+              step={1}
+              help="Controls how often the soft bands repeat across the surface. Available in Wave shader mode."
+              disabled={previewMode !== 'shader'}
+              onChange={setPatternScale}
             />
           </div>
 
-          <div className="material-lab__readout" aria-label="Current material values">
+          <div className="material-lab__readout" aria-label="Current preview values">
             <span>Current sample</span>
-            <strong>{material.roughness < 0.25 ? 'Polished' : material.roughness > 0.7 ? 'Diffused' : 'Satin'} surface</strong>
-            <p>Roughness {material.roughness.toFixed(2)} <span>·</span> Metalness {material.metalness.toFixed(2)}</p>
+            <strong>
+              {previewMode === 'shader'
+                ? 'Procedural wave pattern'
+                : `${material.roughness < 0.25 ? 'Polished' : material.roughness > 0.7 ? 'Diffused' : 'Satin'} surface`}
+            </strong>
+            <p>
+              {previewMode === 'shader'
+                ? `Pattern scale ${patternScale} · Color ${material.color.toUpperCase()}`
+                : `Roughness ${material.roughness.toFixed(2)} · Metalness ${material.metalness.toFixed(2)}`}
+            </p>
           </div>
 
           <button
             className="material-lab__reset"
             type="button"
-            onClick={() => setMaterial(REFERENCE_MATERIAL)}
+            onClick={() => {
+              setMaterial(REFERENCE_MATERIAL)
+              setPatternScale(REFERENCE_PATTERN_SCALE)
+            }}
             disabled={
               material.color === REFERENCE_MATERIAL.color
               && material.roughness === REFERENCE_MATERIAL.roughness
               && material.metalness === REFERENCE_MATERIAL.metalness
+              && patternScale === REFERENCE_PATTERN_SCALE
             }
           >
             Reset to reference <span aria-hidden="true">↺</span>
@@ -110,8 +164,8 @@ function MaterialLab() {
       </div>
 
       <footer className="material-lab__footer">
-        <span>01 / 03</span>
-        <p>Next: a procedural shader, then a richer composed scene.</p>
+        <span>02 / 03</span>
+        <p>Next: compose the material and shader in a richer scene.</p>
       </footer>
     </section>
   )
@@ -122,15 +176,23 @@ function RangeControl({
   label,
   value,
   help,
+  min = 0,
+  max = 1,
+  step = 0.01,
+  disabled = false,
   onChange,
 }: {
   id: string
   label: string
   value: number
   help: string
+  min?: number
+  max?: number
+  step?: number
+  disabled?: boolean
   onChange: (value: number) => void
 }) {
-  const output = value.toFixed(2)
+  const output = step < 1 ? value.toFixed(2) : value.toFixed(0)
 
   return (
     <div className="material-lab__range-control">
@@ -141,10 +203,11 @@ function RangeControl({
       <input
         id={id}
         type="range"
-        min="0"
-        max="1"
-        step="0.01"
+        min={min}
+        max={max}
+        step={step}
         value={value}
+        disabled={disabled}
         onChange={(event) => onChange(Number(event.currentTarget.value))}
         aria-describedby={`${id}-help`}
       />

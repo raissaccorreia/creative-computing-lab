@@ -43,10 +43,18 @@ controls work without pointer-only interaction.
 
 ### Slice 2 — Add one custom procedural shader
 
-Add one small `ShaderMaterial` effect, such as bands or a soft wave pattern,
-with a bounded parameter such as pattern scale. Explain which shader value
-changes what is visible. Keep the first material experiment available so the
-shader has context within the same investigation.
+PR2 adds a static soft-wave pattern with `ShaderMaterial` on the existing
+specimen. A two-option mode switch selects the PBR material or the shader on the
+same geometry, camera, and renderer. The shader reads UVs and a view-space
+normal, and exposes base color and a pattern-scale uniform. Pattern scale is
+bounded from 2 to 14 and starts at 6. It changes how often the bands repeat.
+
+The color control applies in both modes. Roughness and metalness stay visible
+with their values, then become disabled in shader mode; pattern scale is
+disabled in PBR mode. Switching modes preserves all values. Reset restores the
+reference material and shader scale. When WebGL is unavailable, the HTML
+fallback shows a CSS band pattern in shader mode and describes its color and
+scale.
 
 Do not turn this slice into a general shader editor. Keep the shader source
 small enough to explain and keep an HTML fallback that names the effect and its
@@ -55,6 +63,22 @@ parameters when WebGL cannot render it.
 **Success check:** the parameter produces a deterministic visible change,
 updates without losing the baseline material controls, and has an equivalent
 text description.
+
+**Out of scope:** a second WebGL canvas, animation, a shader editor, and a
+composed multi-object scene.
+
+**Local result:** `pnpm lint`, `pnpm typecheck`, `pnpm build`, and four focused
+Playwright Chromium checks pass. They cover mode switching, retained values,
+the WebGL fallback, accessibility, and a narrow viewport. The shader is static
+and produced no browser console errors in the passing WebGL run. The repository
+has no staging deployment workflow, so validation used the local production
+preview.
+
+The production build keeps Three.js in its own lazy-loaded chunk at 539.96 KB
+minified and 133.69 KB gzipped. Vite warns that this chunk exceeds 500 KB. The
+CSS fallback describes and approximates the bands, but does not reproduce the
+shader's curved shading. Frame-time and cross-device performance were not
+measured.
 
 ### Slice 3 — Compose a richer visual demonstration
 

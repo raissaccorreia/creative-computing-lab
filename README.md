@@ -55,8 +55,9 @@ recorded conditions and limits are in
 [`docs/system-anatomy-results.md`](docs/system-anatomy-results.md).
 
 **Material Lab** is the current investigation at `/?demo=material-lab`. Its
-first slice explores base color, roughness, and metalness on one fixed
-Three.js specimen. The custom shader and richer composition are planned next.
+first two slices explore base color, roughness, and metalness on one fixed
+Three.js specimen, then switch that specimen to a static procedural wave shader.
+A richer composition is planned next.
 
 ## Navigation shell
 
