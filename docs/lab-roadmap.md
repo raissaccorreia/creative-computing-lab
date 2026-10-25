@@ -28,7 +28,8 @@ visually rich and polished demonstration.
 
 ### Material Lab — make materials and shaders visible and explainable
 
-**Status:** scope and staged direction defined; implementation has not started.
+**Status:** slice 1 is implemented in PR1; the custom shader and richer scene
+remain planned follow-up slices.
 
 The investigation has three staged slices: controls for a Three.js physical
 material; one small procedural shader with parameters and an explanation; then

@@ -23,6 +23,11 @@ learning and does not require participant research.
 
 ### Slice 1 — Explore a parameterized material
 
+PR1 adds the navigable Material Lab route, one fixed Three.js PBR specimen,
+native color/roughness/metalness controls, current values, a reset action, and an
+HTML fallback when WebGL cannot start. The object and studio environment stay
+fixed while controls update the same `MeshStandardMaterial` instance.
+
 Start with one reference object, a stable camera, and controlled lighting. Add
 native HTML controls for base color, roughness, and metalness, with current
 values visible as text. Changing a control updates the corresponding

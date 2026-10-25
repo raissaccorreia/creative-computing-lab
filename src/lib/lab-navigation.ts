@@ -2,6 +2,7 @@ import {
   CircleDot,
   GitBranch,
   Network,
+  Orbit,
   Search,
   type LucideIcon,
 } from 'lucide-react'
@@ -11,6 +12,7 @@ export type LabView =
   | 'candidate-field'
   | 'candidate-field-comparison'
   | 'system-anatomy'
+  | 'material-lab'
 
 export type LabExperiment = {
   id: LabView
@@ -49,6 +51,13 @@ export const LAB_EXPERIMENTS: LabExperiment[] = [
     href: '/?demo=system-anatomy',
     icon: Network,
   },
+  {
+    id: 'material-lab',
+    label: 'Material Lab',
+    description: 'Explore color, roughness, and metalness',
+    href: '/?demo=material-lab',
+    icon: Orbit,
+  },
 ]
 
 export function readLabView(): LabView {
@@ -57,6 +66,7 @@ export function readLabView(): LabView {
   if (demo === 'candidate-field-comparison') return 'candidate-field-comparison'
   if (demo === 'candidate-field') return 'candidate-field'
   if (demo === 'system-anatomy') return 'system-anatomy'
+  if (demo === 'material-lab') return 'material-lab'
   return 'search-flow'
 }
 

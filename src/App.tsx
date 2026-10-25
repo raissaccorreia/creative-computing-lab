@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 
 import {
   LabShell,
@@ -10,6 +10,8 @@ import CandidateFieldComparison from './demos/candidate-field/CandidateFieldComp
 import SearchFlowExplorer from './demos/search-flow/SearchFlowExplorer'
 import SystemAnatomy from './demos/system-anatomy/SystemAnatomy'
 import './App.css'
+
+const MaterialLab = lazy(() => import('./demos/material-lab/MaterialLab'))
 
 type ResolvedTheme = Exclude<ThemeChoice, 'system'>
 
@@ -79,6 +81,10 @@ function App() {
         <CandidateFieldComparison />
       ) : view === 'system-anatomy' ? (
         <SystemAnatomy />
+      ) : view === 'material-lab' ? (
+        <Suspense fallback={<p className="material-lab__loading">Opening the material studio…</p>}>
+          <MaterialLab />
+        </Suspense>
       ) : (
         <SearchFlowExplorer />
       )}

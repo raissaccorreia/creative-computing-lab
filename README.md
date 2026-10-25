@@ -29,6 +29,8 @@ The investigation notes and reusable working method are in [`docs/`](docs/):
   first SVG baseline and initial external-Chrome measurements.
 - [`docs/system-anatomy-plan.md`](docs/system-anatomy-plan.md) — the bounded
   plan for comparing a 2D Screen presentation with an explicit 3D Spatial mode.
+- [`docs/material-lab-plan.md`](docs/material-lab-plan.md) — the staged plan for
+  parameterized materials, a procedural shader, and a richer composed scene.
 
 ## Current experiment
 
@@ -52,10 +54,14 @@ shared deterministic state, and a keyboard-operable HTML node inspector. The
 recorded conditions and limits are in
 [`docs/system-anatomy-results.md`](docs/system-anatomy-results.md).
 
+**Material Lab** is the current investigation at `/?demo=material-lab`. Its
+first slice explores base color, roughness, and metalness on one fixed
+Three.js specimen. The custom shader and richer composition are planned next.
+
 ## Navigation shell
 
 The lab uses the shadcn/ui `Sidebar` primitives as a shared application shell.
-Desktop users get a persistent experiment index with the four public demos; on
+Desktop users get a persistent experiment index with the five public demos; on
 small screens the same index opens as a dismissible side sheet from the
 `Open experiments menu` toggle. The shell keeps the page and sidebar on the
 same full-width surface, with the existing turquoise accent tokens preserved
