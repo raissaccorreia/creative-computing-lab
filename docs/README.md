@@ -41,11 +41,16 @@ short orientation; the decisions and reusable methods live here.
 
 ## Investigation 04 — Material Lab
 
-- [`material-lab-plan.md`](material-lab-plan.md) — the staged scope for
-  parameterized materials, a small procedural shader, and a more visually
-  composed demonstration.
+- [`material-lab-plan.md`](material-lab-plan.md) — the completed three-slice
+  investigation, local evidence, limits, and selective reuse decision.
 
-## How to add the next investigation
+## Investigation 05: GPU Ranking Field
+
+- [`gpu-ranking-field-plan.md`](gpu-ranking-field-plan.md) — the CPU-baseline
+  implementation, prior renderer findings, local ranking evidence, and GPU
+  decision rule.
+
+## How to add an investigation
 
 Create one document in this folder for the investigation as a whole. Keep its
 sub-steps inside that document when they belong to the same question. Add a

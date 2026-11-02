@@ -10,13 +10,16 @@ test.describe('responsive lab shell', () => {
 
     const navigation = page.getByRole('navigation', { name: 'Experiments' })
     await expect(navigation).toBeVisible()
-    await expect(navigation.getByRole('link')).toHaveCount(4)
+    await expect(navigation.getByRole('link')).toHaveCount(6)
     await expect(
       navigation.getByRole('link', { name: 'System Anatomy' }),
     ).toHaveAttribute('href', '/?demo=system-anatomy')
     await expect(
       navigation.getByRole('link', { name: 'Search Flow Explorer' }),
     ).toHaveAttribute('aria-current', 'page')
+    await expect(
+      navigation.getByRole('link', { name: 'GPU Ranking Field' }),
+    ).toHaveAttribute('href', '/?demo=gpu-ranking-field')
 
     const geometry = await page.evaluate(() => {
       const root = document.getElementById('root')!.getBoundingClientRect()

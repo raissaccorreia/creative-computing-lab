@@ -29,8 +29,10 @@ The investigation notes and reusable working method are in [`docs/`](docs/):
   first SVG baseline and initial external-Chrome measurements.
 - [`docs/system-anatomy-plan.md`](docs/system-anatomy-plan.md) — the bounded
   plan for comparing a 2D Screen presentation with an explicit 3D Spatial mode.
-- [`docs/material-lab-plan.md`](docs/material-lab-plan.md) — the staged plan for
-  parameterized materials, a procedural shader, and a richer composed scene.
+- [`docs/material-lab-plan.md`](docs/material-lab-plan.md) — the completed
+  material and shader investigation with its evidence and reuse decision;
+- [`docs/gpu-ranking-field-plan.md`](docs/gpu-ranking-field-plan.md) — the CPU
+  ranking baseline, prior renderer findings, and the GPU decision rule.
 
 ## Current experiment
 
@@ -40,7 +42,7 @@ responsive layouts, and a Native/Motion comparison.
 
 The implementation lives in [`src/demos/search-flow/`](src/demos/search-flow/).
 
-The current investigation is **Candidate Field**, available at
+The completed **Candidate Field** investigation remains available at
 `/?demo=candidate-field` with an experimental Canvas path at
 `/?demo=candidate-field&renderer=canvas`, implemented in
 [`src/demos/candidate-field/`](src/demos/candidate-field/).
@@ -55,17 +57,24 @@ recorded conditions and limits are in
 [`docs/system-anatomy-results.md`](docs/system-anatomy-results.md).
 
 The completed **Material Lab** is available at `/?demo=material-lab`. Its final
-composition shows a PBR torus knot, a matching torus knot with a static
-wave shader, and a smaller PBR sphere in one Three.js scene. Base color is
-shared; roughness and metalness adjust both PBR forms, while pattern scale
-adjusts the shader form. Native HTML controls and a labeled CSS fallback remain
-available when WebGL cannot start. Local results, limitations, and the reuse
-decision are in [`docs/material-lab-plan.md`](docs/material-lab-plan.md).
+composition shows a PBR torus knot, a matching torus knot with a static wave
+shader, and a smaller PBR sphere in one Three.js scene. Base color is shared;
+roughness and metalness adjust both PBR forms, while pattern scale adjusts the
+shader form. Native HTML controls and a labeled CSS fallback remain available
+when WebGL cannot start. Local results, limitations, and the reuse decision
+are in [`docs/material-lab-plan.md`](docs/material-lab-plan.md).
+
+The **GPU Ranking Field** is available at `/?demo=gpu-ranking-field`. It ranks
+fixed-seed synthetic candidates in a CPU worker, plots them in a constant
+Canvas 2D field, and keeps the top 50 records in an HTML selector. Four weight
+controls change the ranking. The page reports score, sort, paint, and
+input-to-paint timings; WebGL and WebGPU remain off until a measured CPU
+bottleneck justifies a comparison.
 
 ## Navigation shell
 
 The lab uses the shadcn/ui `Sidebar` primitives as a shared application shell.
-Desktop users get a persistent experiment index with the five public demos; on
+Desktop users get a persistent experiment index with the six public demos; on
 small screens the same index opens as a dismissible side sheet from the
 `Open experiments menu` toggle. The shell keeps the page and sidebar on the
 same full-width surface, with the existing turquoise accent tokens preserved
@@ -87,6 +96,7 @@ pnpm build
 pnpm test:e2e
 pnpm test:a11y
 pnpm test:visual
+pnpm test:gpu-ranking-field-model
 # Uses external Google Chrome with a temporary profile for the bounded comparison.
 pnpm stress:candidate-field
 # Uses external Google Chrome with a temporary no-login profile for System Anatomy evidence.

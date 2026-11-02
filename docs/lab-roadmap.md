@@ -23,6 +23,20 @@ Material Lab has completed all three planned slices. The composed scene, local
 evidence, limitations, and final decision are recorded in
 [`material-lab-plan.md`](material-lab-plan.md).
 
+GPU Ranking Field has a CPU Web Worker baseline, interactive synthetic ranking,
+and local profiles across four volumes. Its p95 crossed the 50 ms threshold at
+50,000 records in the recorded session, with sorting as the largest average
+phase. The full measurements and limits are in
+[`gpu-ranking-field-plan.md`](gpu-ranking-field-plan.md).
+
+## Next
+
+### Spatial Computing Lab
+
+This remains the next candidate in the sequence, not an automatic commitment.
+Choose a concrete task, accessible equivalent, and measured cost before
+starting implementation.
+
 ## Completed investigation decisions
 
 ### Material Lab
@@ -34,6 +48,15 @@ scene as a demonstration rather than turning it into a general material editor
 or renderer library. Three.js remains lazy-loaded; its production chunk is
 still above Vite's 500 KB warning threshold. Local first-render timing is
 evidence from one Mac/Chromium run, not a cross-device performance claim.
+
+### GPU Ranking Field
+
+**Decision: Continue the CPU baseline and profile sorting before considering
+GPU compute.** In the recorded local session, p95 first crossed 50 ms at
+50,000 records. Sorting was the largest average phase, while phase averages did
+not explain the full end-to-frame tail at 100,000. No GPU path is implemented;
+compare one only if further measurement shows score calculation is the
+bottleneck. The recorded results describe one browser session.
 
 ### Search Flow Explorer
 
@@ -64,11 +87,7 @@ study or claim learning outcomes.
 
 These are options, not commitments to adopt every technology:
 
-1. **GPU Ranking Field** — compare CPU, WebGL, and WebGPU only if a measured
-   workload justifies the added scale and complexity.
-2. **Spatial Computing Lab** — consider only after a stable 3D foundation and a
-   task with evidence of value.
-3. **Consolidation** — collect reusable renderer contracts, measurement
+1. **Consolidation** — collect reusable renderer contracts, measurement
    patterns, accessibility techniques, and explicit failure boundaries when
    another project needs them.
 
