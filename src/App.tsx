@@ -12,6 +12,7 @@ import SystemAnatomy from './demos/system-anatomy/SystemAnatomy'
 import './App.css'
 
 const MaterialLab = lazy(() => import('./demos/material-lab/MaterialLab'))
+const GpuRankingField = lazy(() => import('./demos/gpu-ranking-field/GpuRankingField'))
 
 type ResolvedTheme = Exclude<ThemeChoice, 'system'>
 
@@ -84,6 +85,10 @@ function App() {
       ) : view === 'material-lab' ? (
         <Suspense fallback={<p className="material-lab__loading">Opening the material studio…</p>}>
           <MaterialLab />
+        </Suspense>
+      ) : view === 'gpu-ranking-field' ? (
+        <Suspense fallback={<p className="gpu-ranking__loading">Opening the ranking field…</p>}>
+          <GpuRankingField />
         </Suspense>
       ) : (
         <SearchFlowExplorer />

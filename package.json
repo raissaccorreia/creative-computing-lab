@@ -15,7 +15,8 @@
     "test:visual:update": "playwright test tests/visual.spec.ts --update-snapshots",
     "stress:candidate-field": "node scripts/stress-candidate-field.mjs",
     "validate:system-anatomy": "node scripts/validate-system-anatomy.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:gpu-ranking-field-model": "node --experimental-strip-types --test tests/gpu-ranking-field-model.node.mjs"
   },
   "dependencies": {
     "@fontsource-variable/elms-sans": "^5.3.0",

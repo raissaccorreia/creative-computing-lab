@@ -1,6 +1,7 @@
 import {
   CircleDot,
   GitBranch,
+  Gauge,
   Network,
   Orbit,
   Search,
@@ -13,6 +14,7 @@ export type LabView =
   | 'candidate-field-comparison'
   | 'system-anatomy'
   | 'material-lab'
+  | 'gpu-ranking-field'
 
 export type LabExperiment = {
   id: LabView
@@ -58,6 +60,13 @@ export const LAB_EXPERIMENTS: LabExperiment[] = [
     href: '/?demo=material-lab',
     icon: Orbit,
   },
+  {
+    id: 'gpu-ranking-field',
+    label: 'GPU Ranking Field',
+    description: 'Measure CPU ranking before GPU compute',
+    href: '/?demo=gpu-ranking-field',
+    icon: Gauge,
+  },
 ]
 
 export function readLabView(): LabView {
@@ -67,6 +76,7 @@ export function readLabView(): LabView {
   if (demo === 'candidate-field') return 'candidate-field'
   if (demo === 'system-anatomy') return 'system-anatomy'
   if (demo === 'material-lab') return 'material-lab'
+  if (demo === 'gpu-ranking-field') return 'gpu-ranking-field'
   return 'search-flow'
 }
 
