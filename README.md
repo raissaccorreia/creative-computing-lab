@@ -67,9 +67,10 @@ are in [`docs/material-lab-plan.md`](docs/material-lab-plan.md).
 The **GPU Ranking Field** is available at `/?demo=gpu-ranking-field`. It ranks
 fixed-seed synthetic candidates in a CPU worker, plots them in a constant
 Canvas 2D field, and keeps the top 50 records in an HTML selector. Four weight
-controls change the ranking. The page reports score, sort, paint, and
-input-to-paint timings; WebGL and WebGPU remain off until a measured CPU
-bottleneck justifies a comparison.
+controls change the ranking. The page reports score, sort, Canvas draw, and
+input-to-rendered-frame timings, with p50 / p95 / maximum breakdowns for each
+phase and the remaining response time. WebGL and WebGPU remain off until a
+measured CPU bottleneck justifies a comparison.
 
 ## Navigation shell
 

@@ -73,6 +73,13 @@ There was one profile each at 1,000, 10,000, and 50,000 records, and two at
 100,000. The table reports p50, p95, maximum, and average score / sort / paint
 times in milliseconds. Dataset generation was excluded.
 
+The original profile ended at the first `requestAnimationFrame` callback after
+Canvas drawing. That callback runs before the browser's next paint. Treat these
+totals as request-to-frame-callback readings, not confirmation that a frame was
+presented. Follow-up profiles use a second callback to include one intervening
+browser rendering opportunity; their totals are not directly comparable to the
+original readings.
+
 | Records | p50 | p95 | Maximum | Average score / sort / paint |
 | --- | ---: | ---: | ---: | ---: |
 | 1,000 | 11.4 | 17.9 | 18.2 | 0.0 / 0.1 / 0.1 |
@@ -86,13 +93,120 @@ not account for the full end-to-frame response tail. Profile CPU sorting and
 that tail before planning a GPU scoring comparison. These measurements describe
 one browser session and do not predict performance across devices.
 
-## Implementation status
+## First-slice implementation status
 
 The first slice is implemented as a CPU Web Worker baseline, with fixed-seed
 synthetic data, four normalized group weights, stable ranking, a Canvas 2D
-field, and an HTML top-50 inspector. The page reports live score, sort, paint,
-and end-to-paint timings; it also shows the earlier Candidate Field renderer
-findings and the local ranking profiles. WebGL and WebGPU are not implemented.
+field, and an HTML top-50 inspector. The page reports live score, sort, Canvas
+draw, and input-to-rendered-frame timings; it also shows the earlier Candidate
+Field renderer findings and the local ranking profiles. WebGL and WebGPU are
+not implemented.
+
+## Follow-up slice — CPU sorting and response tail
+
+### Scope and decision
+
+Improve the existing measurement before changing the ranking algorithm. Keep
+the same synthetic data, complete stable ordering, worker, and Canvas field.
+The worker's current `sortMs` combines index-buffer initialization, the typed
+array comparator, and construction of the rank lookup. Split these phases, and
+measure the response path around them so each profile reports p50, p95, and
+maximum for score, sort setup, comparator sort, rank lookup, top-50 details,
+worker/message remainder, response-to-Canvas start, Canvas drawing, and frame
+wait. Keep end-to-frame response p50, p95, and maximum as the primary measure.
+
+Measure worker/message remainder as request-to-worker-response time minus the
+worker phases. It includes worker dispatch, transfer, event delivery, and any
+unmeasured worker work. Measure response-to-Canvas start from main-thread
+message receipt to the synchronous Canvas draw start; it includes React render
+and commit plus the small setup before drawing. Measure Canvas draw directly,
+then measure frame wait from draw completion through the second animation-frame
+callback. These sequential intervals explain the end-to-frame total within
+timer precision. Phase percentiles are computed independently, so their p95
+values do not necessarily come from the same update.
+
+After drawing the Canvas, wait for two animation-frame callbacks before ending
+the response measurement. This gives the browser one rendering opportunity
+between callbacks. It does not prove that pixels reached a physical display, so
+the page describes the result as time to a rendered-frame opportunity rather
+than a guaranteed display time.
+
+Do not replace `Uint32Array.sort`, change ranking semantics, or add WebGL / WebGPU
+in this slice. Use the measurements to decide whether CPU ordering or a stage
+outside score/sort warrants a separate follow-up. A GPU comparison requires
+score calculation to dominate the measured delay.
+
+### Flow and file map
+
+- `src/demos/gpu-ranking-field/model.ts`: time index initialization, comparator
+  sorting, rank lookup construction, and top-50 detail extraction separately.
+- `src/demos/gpu-ranking-field/worker-protocol.ts` and
+  `ranking.worker.ts`: return the new phase durations with each ranking.
+- `src/demos/gpu-ranking-field/GpuRankingField.tsx`: capture main-thread
+  message receipt, React-to-Canvas delay, draw duration, and frame wait; report
+  p50 / p95 / maximum per phase; keep GPU decisions conditional on evidence.
+- `src/demos/gpu-ranking-field/gpu-ranking-field.css`: style the phase table and
+  keep its horizontal overflow keyboard-accessible on narrow screens.
+- This document: record the measurement boundary, methodology, local evidence,
+  and limitations after the profile is reviewed.
+
+### Implementation status and completion check
+
+The page now reports p50, p95, and maximum for total response and the measured
+worker, main-thread, Canvas, and frame intervals. The Canvas measurement ends
+after two animation-frame callbacks, with one intervening rendering opportunity.
+This timing remains an approximation of visible response, not a hardware
+presentation timestamp.
+
+- The live metric names the measured boundary accurately.
+- A bounded profile reports total response and each component distribution at
+  the selected volume, including partial runs stopped by the existing guard.
+- The phase table exposes the worker's sorting subphases and the remaining
+  response intervals as p50 / p95 / maximum in semantic HTML.
+- Build and lint checks pass; the local ranking page remains available for
+  interactive review.
+
+### Follow-up local profile — 2026-11-04
+
+Profiles ran in the Codex in-app browser on macOS, in a 1,280 × 720 CSS
+viewport at DPR 2, using the Vite development server. Each profile contains 20
+weight updates after the dataset was initialized. The 50,000-record profile was
+run twice; the 100,000-record profile was run five times. Values are separate
+runs, not pooled samples.
+
+| Records | Response p50 (ms) | Response p95 (ms) | Response maximum (ms) |
+| --- | ---: | ---: | ---: |
+| 1,000 | 16.6 | 23.6 | 24.7 |
+| 10,000 | 16.7 | 21.8 | 22.7 |
+| 50,000 | 24.9 / 25.0 | 98.5 / 103.0 | 112.7 / 103.2 |
+| 100,000 | 54.0 / 54.9 / 54.4 / 54.9 / 54.8 | 228.1 / 220.5 / 217.3 / 216.7 / 217.7 | 234.0 / 232.5 / 217.7 / 223.1 / 231.7 |
+
+| Records | Comparator sort p95 (ms) | Frame wait p95 (ms) | Frame wait maximum (ms) |
+| --- | ---: | ---: | ---: |
+| 1,000 | 0.3 | 13.9 | 14.7 |
+| 10,000 | 2.0 | 15.1 | 16.8 |
+| 50,000 | 8.7 / 9.5 | 77.3 / 9.6 | 89.4 / 81.1 |
+| 100,000 | 17.3 / 20.2 / 17.7 / 17.5 / 24.2 | 189.8 / 185.1 / 181.8 / 182.2 / 188.2 | 199.1 / 196.9 / 188.1 / 187.6 / 195.4 |
+
+At 100,000 records, score p95 was 4.2 / 5.9 / 4.3 / 2.3 / 4.2 ms, comparator
+sort p95 was 17.3 / 20.2 / 17.7 / 17.5 / 24.2 ms, and Canvas draw p95 was 8.9
+/ 9.0 / 9.4 / 9.3 / 9.1 ms. Frame wait dominated the end-to-frame response
+p95 at 182–190 ms across all five runs. Worker/message p95 stayed at 0.3 / 0.6
+/ 0.4 / 0.3 / 0.3 ms, while response-to-Canvas p95 was 8.1 / 8.3 / 8.4 / 8.2
+/ 8.4 ms. Two runs had worker/message maxima near 144 ms, showing that this
+interval can also contain rare stalls even though its p95 stayed small. These
+local profiles do not show a scoring or sorting bottleneck large enough to
+explain the response tail; GPU scoring would not address the measured frame
+wait.
+
+At 50,000 records, response p95 exceeded 50 ms in both runs. The location of
+the rare delay varied: frame-wait p95 was 77.3 ms in one run and 9.6 ms in the
+other, while worker/message maxima were 69.3 / 72.9 ms. These independent phase
+percentiles do not identify the same update. Rare delays appeared in frame wait
+and, in the latest 100,000-record run, worker/message handling. The measurements
+locate the tail in browser/message scheduling intervals but do not explain the
+underlying long-task or scheduling cause. They describe this local browser
+session only.
 
 ## Accessibility and limits
 
@@ -110,9 +224,9 @@ Keep the scoring fixture and field presentation specific to this investigation.
 
 ## Decision / next step
 
-Continue with the CPU baseline and profile sorting and the end-to-frame response
-tail before considering GPU compute. The recorded threshold crossing is in the
-sort phase's workload range, while average phase timings do not explain the
-whole tail. Plan a GPU scoring comparison only if follow-up measurements show
-score calculation is the dominant bottleneck. The current slice does not use
-WebGL or WebGPU.
+Keep the CPU baseline and do not add GPU scoring. In the follow-up local
+profiles, comparator sorting remained around 17–20 ms p95 at 100,000 records,
+while frame wait reached 182–190 ms p95. If this investigation continues, trace
+the rare frame and worker-message delays before changing compute. These results
+do not generalize beyond the measured browser session. The current slice does
+not use WebGL or WebGPU.

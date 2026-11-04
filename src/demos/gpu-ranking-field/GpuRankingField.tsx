@@ -15,27 +15,48 @@ import type { RankingRequest, RankingResponse } from './worker-protocol'
 import './gpu-ranking-field.css'
 
 type RankedResponse = Extract<RankingResponse, { type: 'ranked' }>
+type DisplayedRankedResponse = RankedResponse & { responseReceivedAt: number }
 type UpdateSample = {
   totalMs: number
   scoreMs: number
+  orderSetupMs: number
   sortMs: number
-  paintMs: number
+  rankMapMs: number
+  topCandidatesMs: number
+  workerMessagingMs: number
+  renderCommitMs: number
+  drawMs: number
+  frameWaitMs: number
   generationMs: number
 }
 type PendingUpdate = {
   startedAt: number
+  responseReceivedAt?: number
   response?: RankedResponse
   resolve: (sample: UpdateSample | null) => void
 }
-type ProfileSummary = {
-  volume: RankingVolume
-  sampleCount: number
+type TimingDistribution = {
   p50: number
   p95: number
   maximum: number
-  averageScoreMs: number
-  averageSortMs: number
-  averagePaintMs: number
+}
+const PROFILE_PHASES = [
+  { key: 'score', label: 'Score and output arrays' },
+  { key: 'orderSetup', label: 'Index setup' },
+  { key: 'sort', label: 'Comparator sort' },
+  { key: 'rankMap', label: 'Rank lookup' },
+  { key: 'topCandidates', label: 'Top-50 details' },
+  { key: 'workerMessaging', label: 'Worker and messages' },
+  { key: 'renderCommit', label: 'Response to Canvas' },
+  { key: 'draw', label: 'Canvas draw' },
+  { key: 'frameWait', label: 'Frame wait' },
+] as const
+type ProfilePhaseKey = (typeof PROFILE_PHASES)[number]['key']
+type ProfileSummary = {
+  volume: RankingVolume
+  sampleCount: number
+  response: TimingDistribution
+  phases: Record<ProfilePhaseKey, TimingDistribution>
   stoppedAtBudget: boolean
 }
 
@@ -64,42 +85,63 @@ function percentile(values: number[], fraction: number): number {
   return sorted[Math.max(0, Math.ceil(sorted.length * fraction) - 1)]
 }
 
-function average(values: number[]): number {
-  return values.length === 0 ? 0 : values.reduce((sum, value) => sum + value, 0) / values.length
+function summarize(values: number[]): TimingDistribution {
+  return {
+    p50: percentile(values, 0.5),
+    p95: percentile(values, 0.95),
+    maximum: Math.max(0, ...values),
+  }
 }
 
 function getDecisionCopy(profile: ProfileSummary): string {
   if (profile.volume !== 100_000) {
     return 'The 100,000-record profile is the decision gate for this investigation.'
   }
-  if (profile.p95 <= 50) {
+  if (profile.response.p95 <= 50) {
     return 'The CPU baseline stays within the 50 ms target at 100,000 records. The measured workload does not call for GPU scoring.'
   }
 
-  const largestPhase = Math.max(profile.averageScoreMs, profile.averageSortMs, profile.averagePaintMs)
-  if (largestPhase === profile.averageScoreMs) {
-    return 'Scoring is the largest measured phase and the visible update exceeds 50 ms. A GPU scoring comparison could answer the remaining question.'
+  const largestPhase = PROFILE_PHASES.reduce((largest, current) =>
+    profile.phases[current.key].p95 > profile.phases[largest.key].p95 ? current : largest,
+  )
+  if (largestPhase.key === 'score') {
+    return 'Score has the largest independently measured phase p95 while the response exceeds 50 ms. A GPU scoring comparison could answer the remaining question.'
   }
-  if (largestPhase === profile.averageSortMs) {
-    return 'Sorting is the largest measured phase. GPU scoring would leave the measured bottleneck in place.'
+  if (largestPhase.key === 'sort') {
+    return 'Comparator sort has the largest independently measured phase p95. Revisit CPU ordering before considering GPU scoring.'
   }
-  return 'Canvas painting is the largest measured phase. A GPU scoring comparison would not address the current bottleneck.'
+  if (largestPhase.key === 'workerMessaging') {
+    return 'Worker and message time has the largest independently measured phase p95. Inspect dispatch and transfer before considering GPU compute.'
+  }
+  if (largestPhase.key === 'renderCommit') {
+    return 'The response-to-Canvas interval has the largest independently measured phase p95. Inspect React rendering and commit before considering GPU compute.'
+  }
+  if (largestPhase.key === 'draw') {
+    return 'Canvas drawing has the largest independently measured phase p95. GPU scoring would not address the current bottleneck.'
+  }
+  if (largestPhase.key === 'frameWait') {
+    return 'Frame wait has the largest independently measured phase p95. The browser scheduling interval dominates this run; GPU scoring would not address it.'
+  }
+  return `${largestPhase.label} has the largest independently measured phase p95. Optimize that CPU stage before considering GPU compute.`
 }
 
 function ScoreField({
   response,
-  onPainted,
+  onFrameOpportunity,
 }: {
-  response: RankedResponse
-  onPainted: (requestId: number, paintMs: number) => void
+  response: DisplayedRankedResponse
+  onFrameOpportunity: (
+    requestId: number,
+    timings: { renderCommitMs: number; drawMs: number; frameWaitMs: number },
+  ) => void
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const lastPaintedRequestRef = useRef<number | null>(null)
-  const onPaintedRef = useRef(onPainted)
+  const lastMeasuredRequestRef = useRef<number | null>(null)
+  const onFrameOpportunityRef = useRef(onFrameOpportunity)
 
   useEffect(() => {
-    onPaintedRef.current = onPainted
-  }, [onPainted])
+    onFrameOpportunityRef.current = onFrameOpportunity
+  }, [onFrameOpportunity])
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current
@@ -111,6 +153,7 @@ function ScoreField({
       if (!context || bounds.width === 0 || bounds.height === 0) return
 
       const drawStartedAt = readClock()
+      const renderCommitMs = drawStartedAt - response.responseReceivedAt
       const pixelRatio = Math.min(2, Math.max(1, window.devicePixelRatio || 1))
       const width = bounds.width
       const height = bounds.height
@@ -174,10 +217,19 @@ function ScoreField({
       context.lineTo(width - plot.right, height - plot.bottom)
       context.stroke()
 
-      const paintMs = readClock() - drawStartedAt
-      if (lastPaintedRequestRef.current !== response.requestId) {
-        lastPaintedRequestRef.current = response.requestId
-        requestAnimationFrame(() => onPaintedRef.current(response.requestId, paintMs))
+      const drawFinishedAt = readClock()
+      const drawMs = drawFinishedAt - drawStartedAt
+      if (lastMeasuredRequestRef.current !== response.requestId) {
+        lastMeasuredRequestRef.current = response.requestId
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            onFrameOpportunityRef.current(response.requestId, {
+              renderCommitMs,
+              drawMs,
+              frameWaitMs: readClock() - drawFinishedAt,
+            })
+          })
+        })
       }
     }
 
@@ -219,7 +271,7 @@ function Metric({ label, value, note }: { label: string; value: string; note?: s
 function GpuRankingField() {
   const [volume, setVolume] = useState<RankingVolume>(DEFAULT_VOLUME)
   const [weights, setWeights] = useState<RankingWeights>(DEFAULT_WEIGHTS)
-  const [response, setResponse] = useState<RankedResponse | null>(null)
+  const [response, setResponse] = useState<DisplayedRankedResponse | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'updating' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -284,14 +336,16 @@ function GpuRankingField() {
         return
       }
 
+      const responseReceivedAt = readClock()
       pending.response = message
+      pending.responseReceivedAt = responseReceivedAt
       if (message.requestId !== latestRequestIdRef.current) {
         pendingUpdatesRef.current.delete(message.requestId)
         pending.resolve(null)
         return
       }
 
-      setResponse(message)
+      setResponse({ ...message, responseReceivedAt })
       setStatus('ready')
       setErrorMessage(null)
       setSelectedId((current) =>
@@ -320,16 +374,32 @@ function GpuRankingField() {
     }
   }, [requestRanking])
 
-  const handlePainted = useCallback((requestId: number, paintMs: number) => {
+  const handleFrameOpportunity = useCallback((
+    requestId: number,
+    timings: { renderCommitMs: number; drawMs: number; frameWaitMs: number },
+  ) => {
     const pending = pendingUpdatesRef.current.get(requestId)
-    if (!pending?.response) return
+    if (!pending?.response || pending.responseReceivedAt === undefined) return
+
+    const response = pending.response
+    const workerPhaseMs = response.scoreMs
+      + response.orderSetupMs
+      + response.sortMs
+      + response.rankMapMs
+      + response.topCandidatesMs
 
     const sample: UpdateSample = {
       totalMs: readClock() - pending.startedAt,
-      scoreMs: pending.response.scoreMs,
-      sortMs: pending.response.sortMs,
-      paintMs,
-      generationMs: pending.response.generationMs,
+      scoreMs: response.scoreMs,
+      orderSetupMs: response.orderSetupMs,
+      sortMs: response.sortMs,
+      rankMapMs: response.rankMapMs,
+      topCandidatesMs: response.topCandidatesMs,
+      workerMessagingMs: pending.responseReceivedAt - pending.startedAt - workerPhaseMs,
+      renderCommitMs: timings.renderCommitMs,
+      drawMs: timings.drawMs,
+      frameWaitMs: timings.frameWaitMs,
+      generationMs: response.generationMs,
     }
     pendingUpdatesRef.current.delete(requestId)
     pending.resolve(sample)
@@ -391,15 +461,24 @@ function GpuRankingField() {
     await requestRanking(savedWeights, profileVolume)
 
     if (samples.length > 0) {
+      const phaseSamples: Record<ProfilePhaseKey, number[]> = {
+        score: samples.map((sample) => sample.scoreMs),
+        orderSetup: samples.map((sample) => sample.orderSetupMs),
+        sort: samples.map((sample) => sample.sortMs),
+        rankMap: samples.map((sample) => sample.rankMapMs),
+        topCandidates: samples.map((sample) => sample.topCandidatesMs),
+        workerMessaging: samples.map((sample) => sample.workerMessagingMs),
+        renderCommit: samples.map((sample) => sample.renderCommitMs),
+        draw: samples.map((sample) => sample.drawMs),
+        frameWait: samples.map((sample) => sample.frameWaitMs),
+      }
       setProfile({
         volume: profileVolume,
         sampleCount: samples.length,
-        p50: percentile(samples.map((sample) => sample.totalMs), 0.5),
-        p95: percentile(samples.map((sample) => sample.totalMs), 0.95),
-        maximum: Math.max(...samples.map((sample) => sample.totalMs)),
-        averageScoreMs: average(samples.map((sample) => sample.scoreMs)),
-        averageSortMs: average(samples.map((sample) => sample.sortMs)),
-        averagePaintMs: average(samples.map((sample) => sample.paintMs)),
+        response: summarize(samples.map((sample) => sample.totalMs)),
+        phases: Object.fromEntries(
+          PROFILE_PHASES.map(({ key }) => [key, summarize(phaseSamples[key])]),
+        ) as Record<ProfilePhaseKey, TimingDistribution>,
         stoppedAtBudget: samples.length < PROFILE_SAMPLE_COUNT,
       })
     }
@@ -426,7 +505,6 @@ function GpuRankingField() {
         <div className="gpu-ranking__runtime" data-state={status}>
           <span className="gpu-ranking__runtime-dot" aria-hidden="true" />
           <span>{status === 'error' ? 'CPU worker unavailable' : 'CPU worker baseline'}</span>
-          <code>GPU off</code>
         </div>
       </header>
 
@@ -438,7 +516,7 @@ function GpuRankingField() {
               <span>Seed 05EED1234</span>
             </figcaption>
             <div className="gpu-ranking__plot-wrap">
-              {response ? <ScoreField response={response} onPainted={handlePainted} /> : (
+              {response ? <ScoreField response={response} onFrameOpportunity={handleFrameOpportunity} /> : (
                 <div className="gpu-ranking__loading" role="status">
                   <span className="gpu-ranking__loading-mark" aria-hidden="true" />
                   <span>{status === 'error' ? 'Ranking worker is unavailable' : 'Generating the fixed-seed field'}</span>
@@ -462,8 +540,8 @@ function GpuRankingField() {
           <dl className="gpu-ranking__metrics" aria-label="Latest ranking update timings">
             <Metric label="Score" value={formatMs(latestSample?.scoreMs)} note="32 values per record" />
             <Metric label="Sort" value={formatMs(latestSample?.sortMs)} note="Stable id tie-break" />
-            <Metric label="Paint" value={formatMs(latestSample?.paintMs)} note="Canvas draw" />
-            <Metric label="Input to paint" value={formatMs(latestSample?.totalMs)} note="Worker through next frame" />
+            <Metric label="Canvas draw" value={formatMs(latestSample?.drawMs)} note="Path setup and draw commands" />
+            <Metric label="Input to rendered frame" value={formatMs(latestSample?.totalMs)} note="Includes one frame opportunity after draw" />
           </dl>
           {latestSample && latestSample.generationMs > 0 ? (
             <p className="gpu-ranking__setup-note" role="status">
@@ -578,12 +656,41 @@ function GpuRankingField() {
             <p>{profile.sampleCount} completed updates{profile.stoppedAtBudget ? ` before the ${PROFILE_BUDGET_MS} ms run guard` : ''}.</p>
           </div>
           <dl className="gpu-ranking__profile-metrics">
-            <Metric label="p50" value={formatMs(profile.p50)} />
-            <Metric label="p95" value={formatMs(profile.p95)} />
-            <Metric label="Maximum" value={formatMs(profile.maximum)} />
-            <Metric label="Average phases" value={`${profile.averageScoreMs.toFixed(1)} / ${profile.averageSortMs.toFixed(1)} / ${profile.averagePaintMs.toFixed(1)} ms`} note="Score / sort / paint" />
+            <Metric label="Response p50" value={formatMs(profile.response.p50)} />
+            <Metric label="Response p95" value={formatMs(profile.response.p95)} />
+            <Metric label="Response maximum" value={formatMs(profile.response.maximum)} />
+            <Metric label="Phase distributions" value="p50 / p95 / max" note="Each row below" />
           </dl>
-          <p className="gpu-ranking__decision" data-decision={profile.volume === 100_000 && profile.p95 > 50 ? 'over-target' : 'within-target'}>
+          <div
+            className="gpu-ranking__phase-table-wrap"
+            role="region"
+            aria-label="Profile phase timing distributions"
+            tabIndex={0}
+          >
+            <table className="gpu-ranking__evidence-table gpu-ranking__phase-table">
+              <caption>Score / sort / paint and response stages, independently measured p50 / p95 / maximum durations</caption>
+              <thead>
+                <tr><th scope="col">Phase</th><th scope="col">p50</th><th scope="col">p95</th><th scope="col">Maximum</th></tr>
+              </thead>
+              <tbody>
+                {PROFILE_PHASES.map(({ key, label }) => {
+                  const phase = profile.phases[key]
+                  return (
+                    <tr key={key}>
+                      <th scope="row">{label}</th>
+                      <td>{formatMs(phase.p50)}</td>
+                      <td>{formatMs(phase.p95)}</td>
+                      <td>{formatMs(phase.maximum)}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+            <p className="gpu-ranking__phase-note">
+              Worker and message time is request-to-reply duration minus measured worker phases. Response-to-Canvas includes React rendering, commit, and draw setup. Frame wait runs from Canvas draw completion to the second animation-frame callback, with one browser rendering opportunity between callbacks. Phase percentiles are independent; p95 values can come from different updates.
+            </p>
+          </div>
+          <p className="gpu-ranking__decision" data-decision={profile.volume === 100_000 && profile.response.p95 > 50 ? 'over-target' : 'within-target'}>
             <strong>Decision rule</strong>
             <span>{getDecisionCopy(profile)}</span>
           </p>
@@ -625,7 +732,7 @@ function GpuRankingField() {
         <div className="gpu-ranking__profile-heading">
           <p className="gpu-ranking__eyebrow">Recorded local observation</p>
           <h3 id="gpu-ranking-recorded-profile-title">The response crosses 50 ms at 50,000 records</h3>
-          <p>Each profile contains 20 weight updates in the Codex in-app browser on macOS, at a 1,280 × 720 viewport. The 100,000-record profile was repeated twice. Device pixel ratio was not captured.</p>
+          <p>Each profile contains 20 weight updates in the Codex in-app browser on macOS, at a 1,280 × 720 viewport. The 100,000-record profile has two runs. Device pixel ratio was not captured.</p>
         </div>
         <div
           className="gpu-ranking__recorded-table-wrap"
@@ -634,7 +741,7 @@ function GpuRankingField() {
           tabIndex={0}
         >
           <table className="gpu-ranking__evidence-table">
-            <caption>Weight change through next painted frame; one-time setup excluded</caption>
+            <caption>Weight change through the first post-draw frame callback; one-time setup excluded</caption>
             <thead>
               <tr><th scope="col">Records</th><th scope="col">p50</th><th scope="col">p95</th><th scope="col">Max</th><th scope="col">Avg score / sort / paint</th></tr>
             </thead>
@@ -648,7 +755,11 @@ function GpuRankingField() {
         </div>
         <p className="gpu-ranking__decision">
           <strong>Current finding</strong>
-          <span>The p95 crossed 50 ms at 50,000 records, and sorting was the largest average phase. At 100,000 records, phase averages do not account for the full response tail. Profile CPU sorting and the end-to-frame delay before considering GPU scoring. These readings describe one browser session, not performance across devices.</span>
+          <span>The p95 crossed 50 ms at 50,000 records, and sorting was the largest average phase. At 100,000 records, phase averages do not account for the full response tail. These earlier profiles ended at the first post-draw frame callback, before the browser's next paint; compare them cautiously with new measurements. These readings describe one browser session, not performance across devices.</span>
+        </p>
+        <p className="gpu-ranking__decision">
+          <strong>Follow-up profile · 2026-11-04</strong>
+          <span>Across five 100,000-record runs, comparator sort p95 was 17–24 ms and frame wait p95 was 182–190 ms within a 217–228 ms response p95. Two runs also had worker/message maxima near 144 ms despite p95 values below 0.5 ms. At 50,000 records, response p95 reached 98–103 ms in two runs, with rare delays in frame wait and worker/message handling. These local profiles point to frame scheduling at 100,000 records, so GPU scoring remains deferred. A browser trace is needed to explain the occasional long wait.</span>
         </p>
       </section>
 
@@ -659,8 +770,10 @@ function GpuRankingField() {
         </div>
         <ol>
           <li><strong>CPU p95 ≤ 50 ms at 100k</strong><span>Keep the CPU path. The measured workload does not call for GPU scoring.</span></li>
-          <li><strong>Scoring dominates above 50 ms</strong><span>Compare one GPU scoring path, including transfer and readback.</span></li>
-          <li><strong>Sort or paint dominates</strong><span>Improve that phase first. GPU scoring would leave it untouched.</span></li>
+          <li><strong>Score dominates p95</strong><span>Compare one GPU scoring path, including transfer and readback.</span></li>
+          <li><strong>Sort or ranking setup dominates</strong><span>Improve the CPU ordering phase first.</span></li>
+          <li><strong>Messaging, render commit, or frame wait dominates</strong><span>Trace the response path before considering GPU compute.</span></li>
+          <li><strong>Canvas draw dominates</strong><span>Improve drawing; GPU scoring would leave that phase in place.</span></li>
         </ol>
       </section>
 

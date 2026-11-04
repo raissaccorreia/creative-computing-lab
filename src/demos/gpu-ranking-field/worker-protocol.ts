@@ -16,6 +16,9 @@ export type RankingResponse =
       rankByIndex: Uint32Array
       topCandidates: RankedCandidate[]
       scoreMs: number
+      orderSetupMs: number
       sortMs: number
+      rankMapMs: number
+      topCandidatesMs: number
     }
   | { type: 'error'; requestId: number; message: string }

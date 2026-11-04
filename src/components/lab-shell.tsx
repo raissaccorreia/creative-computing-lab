@@ -139,7 +139,6 @@ function LabMainbar({
         <div className="lab-mainbar__context">
           <h1>Creative Computing Lab</h1>
           <div className="lab-mainbar__active">
-            <span>Active experiment</span>
             <strong>{activeExperiment.label}</strong>
           </div>
         </div>
