@@ -51,12 +51,14 @@ evidence from one Mac/Chromium run, not a cross-device performance claim.
 
 ### GPU Ranking Field
 
-**Decision: Continue the CPU baseline and profile sorting before considering
-GPU compute.** In the recorded local session, p95 first crossed 50 ms at
-50,000 records. Sorting was the largest average phase, while phase averages did
-not explain the full end-to-frame tail at 100,000. No GPU path is implemented;
-compare one only if further measurement shows score calculation is the
-bottleneck. The recorded results describe one browser session.
+**Decision: Keep the CPU baseline; defer GPU scoring.** Follow-up profiles on
+2026-11-04 separated comparator sorting from the response path. Across three
+100,000-record runs, sort p95 was 17–20 ms while frame-wait p95 was 182–190 ms,
+within a 217–228 ms response p95. One run also had a 144 ms worker/message
+maximum despite a 0.4 ms p95. At 50,000, response p95 exceeded 50 ms in both
+runs, with rare delays in frame wait and worker/message handling. Trace those
+intervals before changing compute. No GPU path is implemented; these results
+describe one local browser session.
 
 ### Search Flow Explorer
 

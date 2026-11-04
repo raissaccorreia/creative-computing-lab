@@ -35,7 +35,10 @@ export type RankingComputation = {
   rankByIndex: Uint32Array
   topCandidates: RankedCandidate[]
   scoreMs: number
+  orderSetupMs: number
   sortMs: number
+  rankMapMs: number
+  topCandidatesMs: number
 }
 
 export function isRankingVolume(value: number): value is RankingVolume {
@@ -76,9 +79,9 @@ export function calculateRanking(
   weights: readonly number[],
 ): RankingComputation {
   const normalizedWeights = normalizeWeights(weights)
+  const scoreStartedAt = performance.now()
   const scores = new Float32Array(dataset.count)
   const signalMeans = new Float32Array(dataset.count * FEATURE_GROUP_COUNT)
-  const scoreStartedAt = performance.now()
 
   for (let candidateIndex = 0; candidateIndex < dataset.count; candidateIndex += 1) {
     const featureStart = candidateIndex * FEATURE_COUNT
@@ -102,24 +105,29 @@ export function calculateRanking(
   }
 
   const scoreMs = performance.now() - scoreStartedAt
-  const sortStartedAt = performance.now()
+  const orderSetupStartedAt = performance.now()
   const rankedIndices = new Uint32Array(dataset.count)
 
   for (let index = 0; index < rankedIndices.length; index += 1) {
     rankedIndices[index] = index
   }
 
+  const orderSetupMs = performance.now() - orderSetupStartedAt
+  const sortStartedAt = performance.now()
   rankedIndices.sort((left, right) => {
     const scoreDifference = scores[right] - scores[left]
     return scoreDifference === 0 ? left - right : scoreDifference
   })
 
+  const sortMs = performance.now() - sortStartedAt
+  const rankMapStartedAt = performance.now()
   const rankByIndex = new Uint32Array(dataset.count)
   for (let rank = 0; rank < rankedIndices.length; rank += 1) {
     rankByIndex[rankedIndices[rank]] = rank
   }
 
-  const sortMs = performance.now() - sortStartedAt
+  const rankMapMs = performance.now() - rankMapStartedAt
+  const topCandidatesStartedAt = performance.now()
   const topCandidates = Array.from(
     rankedIndices.subarray(0, Math.min(TOP_CANDIDATE_COUNT, dataset.count)),
     (candidateIndex, topIndex) => {
@@ -137,6 +145,16 @@ export function calculateRanking(
       }
     },
   )
+  const topCandidatesMs = performance.now() - topCandidatesStartedAt
 
-  return { signalMeans, rankByIndex, topCandidates, scoreMs, sortMs }
+  return {
+    signalMeans,
+    rankByIndex,
+    topCandidates,
+    scoreMs,
+    orderSetupMs,
+    sortMs,
+    rankMapMs,
+    topCandidatesMs,
+  }
 }

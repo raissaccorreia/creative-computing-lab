@@ -532,6 +532,25 @@
   padding-left: 0.8rem;
 }
 
+.gpu-ranking__phase-table-wrap {
+  grid-column: 1 / -1;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.gpu-ranking__phase-note {
+  max-width: 100ch;
+  margin: 0.55rem 0 0;
+  color: var(--gpu-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.gpu-ranking__phase-table td {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .gpu-ranking__recorded-table-wrap {
   min-width: 0;
   overflow-x: auto;
@@ -826,6 +845,10 @@
 
   .gpu-ranking__evidence-table {
     min-width: 39rem;
+  }
+
+  .gpu-ranking__phase-table {
+    min-width: 31rem;
   }
 
   .gpu-ranking__actions {

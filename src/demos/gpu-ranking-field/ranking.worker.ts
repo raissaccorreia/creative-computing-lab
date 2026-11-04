@@ -36,7 +36,10 @@ workerScope.onmessage = (event) => {
       rankByIndex: computation.rankByIndex,
       topCandidates: computation.topCandidates,
       scoreMs: computation.scoreMs,
+      orderSetupMs: computation.orderSetupMs,
       sortMs: computation.sortMs,
+      rankMapMs: computation.rankMapMs,
+      topCandidatesMs: computation.topCandidatesMs,
     }
 
     workerScope.postMessage(response, [computation.signalMeans.buffer, computation.rankByIndex.buffer])
