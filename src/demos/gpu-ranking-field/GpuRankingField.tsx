@@ -760,7 +760,7 @@ function GpuRankingField() {
         </p>
         <p className="gpu-ranking__decision">
           <strong>Follow-up profile · 2026-11-04</strong>
-          <span>Across four 100,000-record runs, comparator sort p95 was 17–24 ms and frame wait p95 was 182–190 ms within a 217–228 ms response p95. One run also had a 144 ms worker/message maximum despite a 0.4 ms p95. At 50,000 records, response p95 reached 98–103 ms in two runs, with rare delays in frame wait and worker/message handling. These local profiles point to frame scheduling at 100,000 records, so GPU scoring remains deferred. A browser trace is needed to explain the occasional long wait.</span>
+          <span>Across five 100,000-record runs, comparator sort p95 was 17–24 ms and frame wait p95 was 182–190 ms within a 217–228 ms response p95. Two runs also had worker/message maxima near 144 ms despite p95 values below 0.5 ms. At 50,000 records, response p95 reached 98–103 ms in two runs, with rare delays in frame wait and worker/message handling. These local profiles point to frame scheduling at 100,000 records, so GPU scoring remains deferred. A browser trace is needed to explain the occasional long wait.</span>
         </p>
       </section>
 
