@@ -733,7 +733,7 @@ function GpuRankingField() {
         <div className="gpu-ranking__profile-heading">
           <p className="gpu-ranking__eyebrow">Recorded local observation</p>
           <h3 id="gpu-ranking-recorded-profile-title">The response crosses 50 ms at 50,000 records</h3>
-          <p>Each profile contains 20 weight updates in the Codex in-app browser on macOS, at a 1,280 × 720 viewport. The 100,000-record profile was repeated twice. Device pixel ratio was not captured.</p>
+          <p>Each profile contains 20 weight updates in the Codex in-app browser on macOS, at a 1,280 × 720 viewport. The 100,000-record profile has two runs. Device pixel ratio was not captured.</p>
         </div>
         <div
           className="gpu-ranking__recorded-table-wrap"
