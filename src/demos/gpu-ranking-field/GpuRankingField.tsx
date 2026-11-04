@@ -505,7 +505,6 @@ function GpuRankingField() {
         <div className="gpu-ranking__runtime" data-state={status}>
           <span className="gpu-ranking__runtime-dot" aria-hidden="true" />
           <span>{status === 'error' ? 'CPU worker unavailable' : 'CPU worker baseline'}</span>
-          <code>GPU off</code>
         </div>
       </header>
 

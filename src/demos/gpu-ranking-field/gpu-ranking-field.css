@@ -90,14 +90,6 @@
   box-shadow: 0 0 0 0.2rem color-mix(in srgb, #d98679 20%, transparent);
 }
 
-.gpu-ranking__runtime code {
-  margin-left: 0.3rem;
-  padding: 0.22rem 0.35rem;
-  border: 1px solid var(--gpu-line);
-  color: var(--gpu-ink);
-  font: inherit;
-}
-
 .gpu-ranking__workspace {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(19rem, 0.7fr);
@@ -254,9 +246,11 @@
 }
 
 .gpu-ranking__metric span {
+  display: block;
+  margin-top: 0.16rem;
   color: var(--gpu-muted);
   font-size: 0.65rem;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 .gpu-ranking__setup-note {
