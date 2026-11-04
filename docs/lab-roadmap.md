@@ -52,8 +52,8 @@ evidence from one Mac/Chromium run, not a cross-device performance claim.
 ### GPU Ranking Field
 
 **Decision: Keep the CPU baseline; defer GPU scoring.** Follow-up profiles on
-2026-11-04 separated comparator sorting from the response path. Across three
-100,000-record runs, sort p95 was 17–20 ms while frame-wait p95 was 182–190 ms,
+2026-11-04 separated comparator sorting from the response path. Across four
+100,000-record runs, sort p95 was 17–24 ms while frame-wait p95 was 182–190 ms,
 within a 217–228 ms response p95. One run also had a 144 ms worker/message
 maximum despite a 0.4 ms p95. At 50,000, response p95 exceeded 50 ms in both
 runs, with rare delays in frame wait and worker/message handling. Trace those

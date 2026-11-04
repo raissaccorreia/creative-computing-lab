@@ -171,32 +171,32 @@ presentation timestamp.
 Profiles ran in the Codex in-app browser on macOS, in a 1,280 × 720 CSS
 viewport at DPR 2, using the Vite development server. Each profile contains 20
 weight updates after the dataset was initialized. The 50,000-record profile was
-repeated once and the 100,000-record profile was repeated twice. Values are
-separate runs, not pooled samples.
+run twice; the 100,000-record profile was run four times. Values are separate
+runs, not pooled samples.
 
 | Records | Response p50 (ms) | Response p95 (ms) | Response maximum (ms) |
 | --- | ---: | ---: | ---: |
 | 1,000 | 16.6 | 23.6 | 24.7 |
 | 10,000 | 16.7 | 21.8 | 22.7 |
 | 50,000 | 24.9 / 25.0 | 98.5 / 103.0 | 112.7 / 103.2 |
-| 100,000 | 54.0 / 54.9 / 54.4 | 228.1 / 220.5 / 217.3 | 234.0 / 232.5 / 217.7 |
+| 100,000 | 54.0 / 54.9 / 54.4 / 54.8 | 228.1 / 220.5 / 217.3 / 217.7 | 234.0 / 232.5 / 217.7 / 231.7 |
 
 | Records | Comparator sort p95 (ms) | Frame wait p95 (ms) | Frame wait maximum (ms) |
 | --- | ---: | ---: | ---: |
 | 1,000 | 0.3 | 13.9 | 14.7 |
 | 10,000 | 2.0 | 15.1 | 16.8 |
 | 50,000 | 8.7 / 9.5 | 77.3 / 9.6 | 89.4 / 81.1 |
-| 100,000 | 17.3 / 20.2 / 17.7 | 189.8 / 185.1 / 181.8 | 199.1 / 196.9 / 188.1 |
+| 100,000 | 17.3 / 20.2 / 17.7 / 24.2 | 189.8 / 185.1 / 181.8 / 188.2 | 199.1 / 196.9 / 188.1 / 195.4 |
 
-At 100,000 records, score p95 was 4.2 / 5.9 / 4.3 ms, comparator sort p95 was
-17.3 / 20.2 / 17.7 ms, and Canvas draw p95 was 8.9 / 9.0 / 9.4 ms. Frame wait
-dominated the end-to-frame response p95 at 182–190 ms across all three runs.
-Worker/message p95 stayed at 0.3 / 0.6 / 0.4 ms, while response-to-Canvas p95
-was 8.1 / 8.3 / 8.4 ms. One run had a worker/message maximum of 144.4 ms,
-showing that this interval can also contain a rare stall even though its p95
-stayed small. These local profiles do not show a scoring or sorting bottleneck
-large enough to explain the response tail; GPU scoring would not address the
-measured frame wait.
+At 100,000 records, score p95 was 4.2 / 5.9 / 4.3 / 4.2 ms, comparator sort
+p95 was 17.3 / 20.2 / 17.7 / 24.2 ms, and Canvas draw p95 was 8.9 / 9.0 / 9.4
+/ 9.1 ms. Frame wait dominated the end-to-frame response p95 at 182–190 ms
+across all four runs. Worker/message p95 stayed at 0.3 / 0.6 / 0.4 / 0.3 ms,
+while response-to-Canvas p95 was 8.1 / 8.3 / 8.4 / 8.4 ms. One run had a
+worker/message maximum of 144.4 ms, showing that this interval can also contain
+a rare stall even though its p95 stayed small. These local profiles do not show
+a scoring or sorting bottleneck large enough to explain the response tail; GPU
+scoring would not address the measured frame wait.
 
 At 50,000 records, response p95 exceeded 50 ms in both runs. The location of
 the rare delay varied: frame-wait p95 was 77.3 ms in one run and 9.6 ms in the
