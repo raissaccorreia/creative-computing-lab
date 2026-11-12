@@ -24,18 +24,23 @@ evidence, limitations, and final decision are recorded in
 [`material-lab-plan.md`](material-lab-plan.md).
 
 GPU Ranking Field has a CPU Web Worker baseline, interactive synthetic ranking,
-and local profiles across four volumes. Its p95 crossed the 50 ms threshold at
-50,000 records in the recorded session, with sorting as the largest average
-phase. The full measurements and limits are in
+and local profiles across four volumes. Its response p95 crossed the 50 ms
+threshold at 50,000 records. Follow-up profiles placed the tail in frame wait
+and worker-message scheduling rather than in score or sort work, so GPU scoring
+stays deferred. The full measurements and limits are in
 [`gpu-ranking-field-plan.md`](gpu-ranking-field-plan.md).
 
 ## Next
 
 ### Spatial Computing Lab
 
-This remains the next candidate in the sequence, not an automatic commitment.
-Choose a concrete task, accessible equivalent, and measured cost before
-starting implementation.
+Scoped in [`spatial-lab-plan.md`](spatial-lab-plan.md). The task is a
+five-anchor selection on a static sculpture. An `immersive-vr` WebXR session is
+an optional enhancement. The HTML list, pointer, and XR controller share one
+selection state. Every unsupported or failed WebXR state keeps the full task
+in HTML. The work has three slices: a non-XR baseline with capability status,
+the immersive session, and evidence with a decision. No physical XR device is
+available, so the immersive path is verified in an emulator only.
 
 ## Completed investigation decisions
 

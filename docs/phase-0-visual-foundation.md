@@ -58,7 +58,9 @@ Review the initial page and the five Search Flow stages at 390px, 820px,
    [`material-lab-plan.md`](material-lab-plan.md) for the staged scope.
 5. **GPU Ranking Field** — compare CPU, WebGL, and WebGPU only when scale
    justifies the added complexity.
-6. **Spatial Computing Lab** — optional work after the 3D foundation is stable.
+6. **Spatial Computing Lab** — add an optional WebXR session to a small 3D
+   inspection task without losing the HTML path. See
+   [`spatial-lab-plan.md`](spatial-lab-plan.md) for the staged scope.
 
 Each investigation keeps one question, one primary demonstration, one success
 criterion, synthetic neutral data, an accessible equivalent, and a final
