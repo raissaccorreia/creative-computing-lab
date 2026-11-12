@@ -1,4 +1,4 @@
-# Creative Computing Lab — working standard
+# Visual Interfaces Lab — working standard
 
 This is the default way to plan, build, and review experiments in this
 repository. It also gives future projects a small, practical starting point.

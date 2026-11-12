@@ -1,6 +1,6 @@
-# Agent guidelines for Creative Computing Lab
+# Agent guidelines for Visual Interfaces Lab
 
-This repository is a public lab for small, executable experiments in creative computing. Agents working here should treat it as both a demonstration space and a reusable technical reference—not a product, a premature library, or a loose collection of unrelated samples.
+This repository is a public lab for small, executable experiments in visual interfaces and rendering. Agents working here should treat it as both a demonstration space and a reusable technical reference—not a product, a premature library, or a loose collection of unrelated samples.
 
 ## Purpose
 

@@ -16,11 +16,15 @@ const GpuRankingField = lazy(() => import('./demos/gpu-ranking-field/GpuRankingF
 
 type ResolvedTheme = Exclude<ThemeChoice, 'system'>
 
-const THEME_STORAGE_KEY = 'creative-computing-lab-theme'
+const THEME_STORAGE_KEY = 'visual-interfaces-lab-theme'
+// Read once so a theme saved before the rename is not lost.
+const LEGACY_THEME_STORAGE_KEY = 'creative-computing-lab-theme'
 
 function readStoredTheme(): ThemeChoice {
   try {
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
+    const stored =
+      window.localStorage.getItem(THEME_STORAGE_KEY) ??
+      window.localStorage.getItem(LEGACY_THEME_STORAGE_KEY)
     if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
   } catch {
     // Storage can be unavailable in a restricted browser context.

@@ -1,4 +1,4 @@
-# Creative Computing Lab — PR roadmap
+# Visual Interfaces Lab — PR roadmap
 
 This roadmap tracks completed investigations and the next bounded question for
 the lab. Each new investigation should keep one primary demonstration, one

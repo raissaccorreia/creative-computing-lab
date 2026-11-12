@@ -160,7 +160,7 @@ function LabMainbar({
           title={`${triggerLabel} (Ctrl/⌘ B)`}
         />
         <div className="lab-mainbar__context">
-          <h1>Creative Computing Lab</h1>
+          <h1>Visual Interfaces Lab</h1>
           <div className="lab-mainbar__active">
             <strong>{activeExperiment.label}</strong>
           </div>
@@ -198,16 +198,16 @@ export function LabShell({
           collapsible="icon"
           className="lab-sidebar"
           role="complementary"
-          aria-label="Creative Computing Lab navigation"
+          aria-label="Visual Interfaces Lab navigation"
         >
           <SidebarHeader className="lab-sidebar__header">
             <div className="lab-sidebar__brand-row">
               <a href="/" className="lab-sidebar__brand">
                 <span className="lab-sidebar__mark" aria-hidden="true">
-                  CC
+                  VI
                 </span>
                 <span className="lab-sidebar__brand-copy">
-                  <strong>Creative Computing</strong>
+                  <strong>Visual Interfaces</strong>
                   <span>Lab</span>
                 </span>
               </a>
@@ -234,7 +234,7 @@ export function LabShell({
                 {LAB_EXPERIMENTS.length} public experiments. Synthetic data only.
               </p>
             </div>
-            <p className="lab-sidebar__workspace">Creative Computing Lab · local workspace</p>
+            <p className="lab-sidebar__workspace">Visual Interfaces Lab · local workspace</p>
           </SidebarFooter>
           <SidebarRail />
         </Sidebar>

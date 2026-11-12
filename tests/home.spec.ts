@@ -42,11 +42,11 @@ async function countRunningAnimations(page: import('@playwright/test').Page) {
 test('home page smoke', async ({ page }) => {
   await page.goto('/')
 
-  await expect(page).toHaveTitle(/Creative Computing Lab/)
+  await expect(page).toHaveTitle(/Visual Interfaces Lab/)
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.locator('main')).toBeVisible()
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Creative Computing Lab' }),
+    page.getByRole('heading', { level: 1, name: 'Visual Interfaces Lab' }),
   ).toBeVisible()
 
   await expect(

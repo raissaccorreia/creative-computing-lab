@@ -1,4 +1,4 @@
-# Creative Computing Lab
+# Visual Interfaces Lab
 
 This repository is a public lab for small experiments in visual computing and
 interface design. Each experiment asks one clear question, produces something

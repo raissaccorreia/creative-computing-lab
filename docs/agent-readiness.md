@@ -1,7 +1,7 @@
 ---
 type: project-readiness
 schema_version: 1
-project_id: creative-computing-lab
+project_id: visual-interfaces-lab
 project_lifecycle: active
 auto_dev_scope: pilot_primary
 pilot_priority: primary
@@ -19,7 +19,7 @@ worktree_changes: "docs/agent-readiness.md; docs/search-flow-results.md; src/dem
 generated_untracked: "none after removing transient pnpm WAL files"
 remote: configured
 remote_name: origin
-remote_url: "git@github.com:raissaccorreia/creative-computing-lab.git"
+remote_url: "git@github.com:raissaccorreia/visual-interfaces-lab.git"
 staging_local: present
 staging_local_ref: refs/heads/staging
 staging_local_commit: 46dd4a452ad477689a49e63807ec770e85854b0a

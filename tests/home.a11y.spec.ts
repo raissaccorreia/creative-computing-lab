@@ -37,7 +37,7 @@ test('home page has no detectable accessibility violations in dark theme @a11y',
   page,
 }) => {
   await page.addInitScript(() => {
-    window.localStorage.setItem('creative-computing-lab-theme', 'dark')
+    window.localStorage.setItem('visual-interfaces-lab-theme', 'dark')
   })
   await page.goto('/')
 

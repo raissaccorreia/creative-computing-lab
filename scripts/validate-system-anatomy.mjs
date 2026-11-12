@@ -41,7 +41,7 @@ async function finishLongTaskCollection(page) {
   })
 }
 
-const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), 'creative-computing-system-anatomy-'))
+const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), 'visual-interfaces-system-anatomy-'))
 await fs.mkdir(screenshotDir, { recursive: true })
 let context
 

@@ -242,7 +242,7 @@ function summarizeProfiles(profiles) {
     }))
 }
 
-const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), 'creative-computing-chrome-'))
+const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), 'visual-interfaces-chrome-'))
 let context
 
 try {
