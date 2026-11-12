@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import {
   Monitor,
   Moon,
@@ -20,6 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
@@ -33,6 +34,18 @@ import {
 } from '@/lib/lab-navigation'
 
 export type ThemeChoice = 'light' | 'dark' | 'system'
+
+const SIDEBAR_SIZES = {
+  '--sidebar-width': '17rem',
+  '--sidebar-width-icon': '3.5rem',
+} as CSSProperties
+
+// The sidebar primitive writes this cookie whenever the desktop state changes.
+function readSidebarOpen() {
+  if (typeof document === 'undefined') return true
+  const match = document.cookie.match(/(?:^|;\s*)sidebar_state=(true|false)/)
+  return match ? match[1] === 'true' : true
+}
 
 export function ThemeToggle({
   theme,
@@ -127,17 +140,27 @@ function LabMainbar({
   theme: ThemeChoice
   onToggleTheme: () => void
 }) {
-  const { openMobile } = useSidebar()
+  const { isMobile, open, openMobile } = useSidebar()
+  const triggerLabel = isMobile
+    ? openMobile
+      ? 'Close experiments menu'
+      : 'Open experiments menu'
+    : open
+      ? 'Collapse experiments menu'
+      : 'Expand experiments menu'
 
   return (
     <header className="lab-mainbar">
       <div className="lab-mainbar__leading">
         <SidebarTrigger
           className="lab-mainbar__trigger"
-          aria-label={openMobile ? 'Close experiments menu' : 'Open experiments menu'}
+          aria-label={triggerLabel}
+          aria-expanded={isMobile ? openMobile : open}
+          aria-keyshortcuts="Control+B Meta+B"
+          title={`${triggerLabel} (Ctrl/⌘ B)`}
         />
         <div className="lab-mainbar__context">
-          <h1>Creative Computing Lab</h1>
+          <h1>Visual Interfaces Lab</h1>
           <div className="lab-mainbar__active">
             <strong>{activeExperiment.label}</strong>
           </div>
@@ -166,21 +189,25 @@ export function LabShell({
 
   return (
     <TooltipProvider delayDuration={0}>
-      <SidebarProvider defaultOpen className="lab-sidebar-provider">
+      <SidebarProvider
+        defaultOpen={readSidebarOpen()}
+        className="lab-sidebar-provider"
+        style={SIDEBAR_SIZES}
+      >
         <Sidebar
-          collapsible="offcanvas"
+          collapsible="icon"
           className="lab-sidebar"
           role="complementary"
-          aria-label="Creative Computing Lab navigation"
+          aria-label="Visual Interfaces Lab navigation"
         >
           <SidebarHeader className="lab-sidebar__header">
             <div className="lab-sidebar__brand-row">
               <a href="/" className="lab-sidebar__brand">
                 <span className="lab-sidebar__mark" aria-hidden="true">
-                  CC
+                  VI
                 </span>
                 <span className="lab-sidebar__brand-copy">
-                  <strong>Creative Computing</strong>
+                  <strong>Visual Interfaces</strong>
                   <span>Lab</span>
                 </span>
               </a>
@@ -198,15 +225,18 @@ export function LabShell({
                 </SidebarGroupContent>
               </SidebarGroup>
             </nav>
-            <div className="lab-sidebar__note">
-              <span className="lab-sidebar__note-dot" aria-hidden="true" />
-              <p>Six public experiments. Synthetic data only.</p>
-            </div>
           </SidebarContent>
           <SidebarFooter className="lab-sidebar__footer">
             <SidebarSeparator />
-            <p>Creative Computing Lab · local workspace</p>
+            <div className="lab-sidebar__note">
+              <span className="lab-sidebar__note-dot" aria-hidden="true" />
+              <p>
+                {LAB_EXPERIMENTS.length} public experiments. Synthetic data only.
+              </p>
+            </div>
+            <p className="lab-sidebar__workspace">Visual Interfaces Lab · local workspace</p>
           </SidebarFooter>
+          <SidebarRail />
         </Sidebar>
         <SidebarInset className="lab-shell">
           <LabMainbar

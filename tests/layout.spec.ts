@@ -38,6 +38,42 @@ test.describe('responsive lab shell', () => {
     expect(geometry.accent).toBe('#27a1a4')
   })
 
+  test('desktop sidebar collapses to an icon rail and remembers it', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.goto('/')
+
+    const sidebar = page.locator('[data-slot="sidebar"][data-state]')
+    const collapse = page.getByRole('button', { name: 'Collapse experiments menu' })
+    await expect(collapse).toBeVisible()
+    await expect(collapse).toHaveAttribute('aria-expanded', 'true')
+
+    await collapse.click()
+    await expect(sidebar).toHaveAttribute('data-collapsible', 'icon')
+    const expand = page.getByRole('button', { name: 'Expand experiments menu' })
+    await expect(expand).toHaveAttribute('aria-expanded', 'false')
+
+    const navigation = page.getByRole('navigation', { name: 'Experiments' })
+    await expect(navigation.getByRole('link')).toHaveCount(6)
+    await expect(
+      navigation.getByRole('link', { name: 'Material Lab' }),
+    ).toBeVisible()
+    await expect
+      .poll(() =>
+        sidebar
+          .locator('[data-slot="sidebar-container"]')
+          .evaluate((element) => element.getBoundingClientRect().width),
+      )
+      .toBeLessThanOrEqual(64)
+
+    await page.reload()
+    await expect(sidebar).toHaveAttribute('data-state', 'collapsed')
+
+    await page.keyboard.press('Control+b')
+    await expect(sidebar).toHaveAttribute('data-state', 'expanded')
+  })
+
   test('mobile sidebar opens as a curtain and closes after navigation', async ({
     page,
   }) => {

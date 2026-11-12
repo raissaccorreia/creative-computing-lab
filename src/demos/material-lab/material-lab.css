@@ -79,9 +79,10 @@
 
 .material-lab__stage-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.3rem 1rem;
   padding: 0 0 0.65rem;
   color: var(--material-muted);
   font-family: var(--font-mono);
@@ -381,6 +382,11 @@
   padding-top: 0.8rem;
   border-top: 1px solid var(--page-border);
   color: var(--material-muted);
+}
+
+.material-lab__stage-meta span,
+.material-lab__footer > span {
+  white-space: nowrap;
 }
 
 .material-lab__footer > span {
