@@ -77,8 +77,10 @@ measured CPU bottleneck justifies a comparison.
 ## Navigation shell
 
 The lab uses the shadcn/ui `Sidebar` primitives as a shared application shell.
-Desktop users get a persistent experiment index with the six public demos; on
-small screens the same index opens as a dismissible side sheet from the
+On desktop the experiment index can always be collapsed to an icon rail with
+the toggle in the top bar, the sidebar edge, or Ctrl/⌘ B. Icons keep tooltips
+and accessible names, and the choice is remembered on the next visit. On small
+screens the same index opens as a dismissible side sheet from the
 `Open experiments menu` toggle. The shell keeps the page and sidebar on the
 same full-width surface, with the existing turquoise accent tokens preserved
 across light and dark themes.

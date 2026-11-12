@@ -11,7 +11,7 @@ const NODE_DEFINITIONS: Array<Omit<SystemAnatomyNode, 'status' | 'statusLabel' |
     label: 'Request input',
     kind: 'input',
     description: 'A deterministic request enters the system.',
-    screenPosition: { x: 100, y: 300 },
+    screenPosition: { x: 80, y: 210 },
     spatialPosition: [-4.8, 0, 0],
   },
   {
@@ -19,7 +19,7 @@ const NODE_DEFINITIONS: Array<Omit<SystemAnatomyNode, 'status' | 'statusLabel' |
     label: 'Gateway',
     kind: 'process',
     description: 'The gateway validates and accepts the request.',
-    screenPosition: { x: 260, y: 190 },
+    screenPosition: { x: 240, y: 90 },
     spatialPosition: [-2.8, 1.7, 0.2],
   },
   {
@@ -27,7 +27,7 @@ const NODE_DEFINITIONS: Array<Omit<SystemAnatomyNode, 'status' | 'statusLabel' |
     label: 'Router',
     kind: 'process',
     description: 'The router chooses the next processing path.',
-    screenPosition: { x: 260, y: 410 },
+    screenPosition: { x: 240, y: 330 },
     spatialPosition: [-2.8, -1.7, -0.2],
   },
   {
@@ -35,7 +35,7 @@ const NODE_DEFINITIONS: Array<Omit<SystemAnatomyNode, 'status' | 'statusLabel' |
     label: 'Work queue',
     kind: 'process',
     description: 'The queue holds work until a worker can process it.',
-    screenPosition: { x: 470, y: 300 },
+    screenPosition: { x: 400, y: 210 },
     spatialPosition: [-0.3, 0, 0],
   },
   {
@@ -43,7 +43,7 @@ const NODE_DEFINITIONS: Array<Omit<SystemAnatomyNode, 'status' | 'statusLabel' |
     label: 'Worker A',
     kind: 'process',
     description: 'Worker A transforms the request into a result.',
-    screenPosition: { x: 650, y: 190 },
+    screenPosition: { x: 560, y: 90 },
     spatialPosition: [2, 1.7, 0.5],
   },
   {
@@ -51,7 +51,7 @@ const NODE_DEFINITIONS: Array<Omit<SystemAnatomyNode, 'status' | 'statusLabel' |
     label: 'Worker B',
     kind: 'process',
     description: 'Worker B provides a second processing path.',
-    screenPosition: { x: 650, y: 410 },
+    screenPosition: { x: 560, y: 330 },
     spatialPosition: [2, -1.7, -0.5],
   },
   {
@@ -59,7 +59,7 @@ const NODE_DEFINITIONS: Array<Omit<SystemAnatomyNode, 'status' | 'statusLabel' |
     label: 'Result store',
     kind: 'store',
     description: 'The result store keeps the transformed result.',
-    screenPosition: { x: 820, y: 300 },
+    screenPosition: { x: 720, y: 210 },
     spatialPosition: [4.1, 0, 0],
   },
   {
@@ -67,7 +67,7 @@ const NODE_DEFINITIONS: Array<Omit<SystemAnatomyNode, 'status' | 'statusLabel' |
     label: 'Response output',
     kind: 'output',
     description: 'The completed result leaves the system.',
-    screenPosition: { x: 970, y: 300 },
+    screenPosition: { x: 960, y: 210 },
     spatialPosition: [5.8, 0, 0],
   },
 ]

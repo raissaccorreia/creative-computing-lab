@@ -49,6 +49,10 @@ test('ranking page remains accessible and contained on mobile @a11y', async ({ p
   expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
   await expect(page.getByRole('slider', { name: 'Signal 01' })).toBeVisible()
   await expect(page.getByTestId('gpu-ranking-field-canvas')).toBeVisible()
+  // The page fades in; measure contrast after the entry animation settles.
+  await page.waitForFunction(() =>
+    document.getAnimations().every((animation) => animation.playState !== 'running'),
+  )
 
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations).toEqual([])

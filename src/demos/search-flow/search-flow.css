@@ -10,13 +10,15 @@
 
   display: grid;
   gap: clamp(1.5rem, 3vw, 2.75rem);
-  margin-top: clamp(2rem, 5vw, 4rem);
+  --flow-column: 52rem;
+
+  margin-top: clamp(0.5rem, 2vw, 1.5rem);
   padding-top: 0;
   color: var(--flow-ink);
 }
 
 .search-flow__header {
-  max-width: var(--text-measure);
+  width: min(100%, var(--flow-column));
   margin: 0 auto;
   text-align: center;
 }
@@ -32,6 +34,7 @@
 }
 
 .search-flow__lede {
+  max-width: 62ch;
   margin: 0 auto 1rem;
   color: var(--flow-muted);
   line-height: 1.55;
@@ -41,8 +44,9 @@
   display: grid;
   gap: 0.8rem;
   margin: 1.5rem 0 1.75rem;
-  padding: 1rem 0;
+  padding: 1.1rem clamp(1rem, 2.5vw, 1.5rem) 1.25rem;
   border-top: 2px solid var(--flow-accent);
+  text-align: left;
   border-bottom: 1px solid var(--page-border);
   background: var(--flow-panel);
 }
@@ -64,7 +68,7 @@
   margin: 0;
   padding: 0.85rem 1rem;
   border: 1px solid var(--page-border);
-  background: var(--page-bg);
+  background: var(--page-surface);
 }
 
 .search-flow__implementation-options legend {
@@ -92,8 +96,8 @@
 
 .search-flow__query {
   margin: 0;
-  max-width: var(--text-measure);
-  padding: 0.95rem 1.1rem;
+  padding: 0.95rem clamp(1rem, 2.5vw, 1.5rem);
+  text-align: left;
   border-left: 3px solid var(--flow-accent);
   background: var(--flow-panel);
   line-height: 1.5;
@@ -186,7 +190,7 @@
 }
 
 .search-flow__live {
-  width: min(100%, var(--text-measure));
+  width: min(100%, var(--flow-column));
   margin: 0 auto;
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--page-border);
@@ -387,7 +391,8 @@
 }
 
 .search-flow__equivalent {
-  max-width: var(--text-measure);
+  width: min(100%, var(--flow-column));
+  justify-self: center;
 }
 
 .search-flow__equivalent h3 {
@@ -428,7 +433,7 @@
 
 .search-flow__details {
   min-width: 0;
-  width: min(100%, 52rem);
+  width: min(100%, var(--flow-column));
   justify-self: center;
   padding: clamp(1rem, 2vw, 1.5rem);
   border: 1px solid var(--page-border);

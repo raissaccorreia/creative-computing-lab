@@ -8,7 +8,7 @@
   --system-accent-soft: var(--page-accent-soft);
   display: grid;
   gap: clamp(1.5rem, 3vw, 2.5rem);
-  margin-top: clamp(2rem, 5vw, 4rem);
+  margin-top: clamp(0.5rem, 2vw, 1.5rem);
   color: var(--system-ink);
 }
 .system-anatomy__header { max-width: var(--text-measure); margin: 0 auto; text-align: center; }
@@ -21,7 +21,7 @@
 .system-anatomy__note,
 .system-anatomy__figure figcaption { color: var(--system-muted); line-height: 1.55; }
 .system-anatomy__lede { max-width: 62ch; margin: 0 auto; }
-.system-anatomy__controls { width: min(100%, 62rem); margin: 0 auto; }
+.system-anatomy__controls { width: 100%; margin: 0 auto; }
 .system-anatomy__controls fieldset { margin: 0; padding: 0.85rem 1rem 1rem; border: 1px solid var(--page-border); background: var(--system-panel); }
 .system-anatomy__controls legend { padding: 0 0.35rem; color: var(--system-accent-strong); font-family: var(--font-display); font-size: 0.76rem; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; }
 .system-anatomy__state-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; }
@@ -38,21 +38,21 @@
 .system-anatomy__state-options span { display: grid; gap: 0.12rem; min-width: 0; }
 .system-anatomy__state-options strong { font-family: var(--font-display); font-size: 0.9rem; }
 .system-anatomy__state-options small { color: var(--system-muted); font-size: 0.78rem; line-height: 1.25; }
-.system-anatomy__summary { width: min(100%, 62rem); margin: 0 auto; padding: 0.8rem 1rem; border-left: 3px solid var(--system-accent); background: var(--system-panel); color: var(--system-muted); line-height: 1.45; }
+.system-anatomy__summary { width: 100%; margin: 0 auto; padding: 0.8rem 1rem; border-left: 3px solid var(--system-accent); background: var(--system-panel); color: var(--system-muted); line-height: 1.45; }
 .system-anatomy__layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 0.75fr); gap: clamp(1rem, 3vw, 2rem); align-items: start; }
 .system-anatomy__figure,
 .system-anatomy__inspector { min-width: 0; margin: 0; padding: clamp(1rem, 2vw, 1.5rem); border: 1px solid var(--page-border); background: var(--system-panel); }
 .system-anatomy__figure-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
 .system-anatomy__figure-heading strong { color: var(--system-ink); font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 0.04em; text-transform: uppercase; }
-.system-anatomy__surface { overflow: hidden; border: 1px solid var(--page-border); background: var(--page-bg); }
-.system-anatomy__screen { display: block; width: 100%; height: auto; min-height: 18rem; }
+.system-anatomy__surface { overflow-x: auto; overflow-y: hidden; border: 1px solid var(--page-border); background: var(--page-bg); scrollbar-color: var(--page-border) transparent; scrollbar-width: thin; }
+.system-anatomy__screen { display: block; width: 100%; min-width: 40rem; height: auto; }
 .system-anatomy__spatial { position: relative; min-height: 20rem; }
 .system-anatomy__spatial-canvas { display: block; width: 100%; min-height: 20rem; cursor: grab; touch-action: none; }
 .system-anatomy__spatial-canvas:active { cursor: grabbing; }
 .system-anatomy__spatial-fallback { margin: 0; padding: 2rem; color: var(--system-muted); }
 .system-anatomy__screen-background { fill: var(--page-bg); }
 .system-anatomy__edges line { stroke: var(--page-line); stroke-width: 2; stroke-dasharray: 6 6; opacity: 0.7; }
-.system-anatomy__edges text { fill: var(--system-muted); font-size: 11px; text-anchor: middle; }
+.system-anatomy__edges text { fill: var(--system-muted); font-family: var(--font-display); font-size: 12px; text-anchor: middle; paint-order: stroke; stroke: var(--page-bg); stroke-width: 5px; stroke-linejoin: round; }
 .system-anatomy__node { cursor: pointer; outline: none; }
 .system-anatomy__node > rect { fill: var(--system-panel); stroke: var(--page-border); stroke-width: 2; transition: stroke 140ms ease, fill 140ms ease; }
 .system-anatomy__node:hover > rect,
@@ -60,8 +60,8 @@
 .system-anatomy__node--selected > rect { fill: var(--system-accent-soft); stroke: var(--system-accent-strong); stroke-width: 3; }
 .system-anatomy__node-label,
 .system-anatomy__node-status-label { pointer-events: none; font-family: var(--font-display); }
-.system-anatomy__node-label { fill: var(--system-ink); font-size: 14px; font-weight: 650; }
-.system-anatomy__node-status-label { fill: var(--system-muted); font-size: 11px; }
+.system-anatomy__node-label { fill: var(--system-ink); font-size: 15px; font-weight: 650; }
+.system-anatomy__node-status-label { fill: var(--system-muted); font-size: 12px; }
 .system-anatomy__node-status { fill: var(--system-accent-strong); }
 .system-anatomy__node--attention .system-anatomy__node-status { fill: #c4851a; }
 .system-anatomy__node--blocked .system-anatomy__node-status { fill: #ba4b45; }
@@ -93,7 +93,11 @@
 .system-anatomy__details dd { text-align: right; }
 .system-anatomy__explanation { margin-bottom: 0 !important; color: var(--system-ink) !important; }
 .system-anatomy__empty { color: var(--system-muted); font-size: 0.9rem; }
-.system-anatomy__note { width: min(100%, 62rem); margin: 0 auto; padding-top: 1rem; border-top: 1px solid var(--page-border); font-size: 0.9rem; }
+.system-anatomy__note { width: 100%; margin: 0 auto; padding-top: 1rem; border-top: 1px solid var(--page-border); font-size: 0.9rem; }
+
+@media (min-width: 821px) {
+  .system-anatomy__figure { position: sticky; top: 5.5rem; }
+}
 
 @media (max-width: 820px) {
   .system-anatomy__layout { grid-template-columns: 1fr; }

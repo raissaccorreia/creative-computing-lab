@@ -367,6 +367,21 @@ function diagramDesc(snapshot: StageSnapshot): string {
   return snapshot.summary
 }
 
+const TRAILING_STOPWORDS = new Set(['and', 'for', 'of', 'the', 'to', 'with'])
+
+/** Shortens a title on word boundaries so it fits a recommendation card. */
+function shortTitle(title: string, maxLength = 18) {
+  const words = title.split(' ')
+  const kept: string[] = []
+  for (const word of words) {
+    if ([...kept, word].join(' ').length > maxLength) break
+    kept.push(word)
+  }
+  if (kept.length === words.length) return title
+  while (kept.length > 1 && TRAILING_STOPWORDS.has(kept[kept.length - 1].toLowerCase())) kept.pop()
+  return `${kept.join(' ')}…`
+}
+
 function DesktopDiagram({
   snapshot,
   stepIndex,
@@ -395,7 +410,7 @@ function DesktopDiagram({
   return (
     <svg
       className="flow-diagram flow-diagram--desktop"
-      viewBox="0 0 1040 300"
+      viewBox="0 0 1080 300"
       role="group"
       aria-labelledby={titleId}
       aria-describedby={descId}
@@ -473,7 +488,7 @@ function DesktopDiagram({
               )
             })
           : (
-            <text x="320" y="140" textAnchor="middle" className="flow-empty-hint">
+            <text x="320" y="148" textAnchor="middle" className="flow-empty-hint">
               waiting
             </text>
           )}
@@ -487,7 +502,7 @@ function DesktopDiagram({
         </text>
         <rect x="460" y="48" width="160" height="200" rx="4" className="flow-panel" />
         <path
-          d="M490 70 L530 70 L555 148 L530 226 L490 226 Z"
+          d="M486 70 L522 70 L542 148 L522 226 L486 226 Z"
           className="flow-gate"
         />
         {showFilters
@@ -495,7 +510,7 @@ function DesktopDiagram({
               const removed = Boolean(snapshot.removedReasons[id])
               const col = index % 3
               const row = Math.floor(index / 3)
-              const cx = removed ? 560 + col * 18 : 500 + (col % 2) * 18
+              const cx = removed ? 562 + col * 20 : 498 + (col % 2) * 20
               const cy = 88 + row * 28
               return (
                 <ResourceInteraction
@@ -517,7 +532,7 @@ function DesktopDiagram({
               )
             })
           : (
-            <text x="540" y="148" textAnchor="middle" className="flow-empty-hint">
+            <text x="588" y="148" textAnchor="middle" className="flow-empty-hint">
               waiting
             </text>
           )}
@@ -529,7 +544,7 @@ function DesktopDiagram({
         <text x="680" y="28" className="flow-stage-label">
           Ranking
         </text>
-        <rect x="680" y="48" width="150" height="200" rx="4" className="flow-panel" />
+        <rect x="680" y="48" width="160" height="200" rx="4" className="flow-panel" />
         {showRanking
           ? snapshot.orderedIds.map((id, index) => {
               const y = 68 + index * 30
@@ -565,28 +580,28 @@ function DesktopDiagram({
               )
             })
           : (
-            <text x="755" y="148" textAnchor="middle" className="flow-empty-hint">
+            <text x="760" y="148" textAnchor="middle" className="flow-empty-hint">
               waiting
             </text>
           )}
       </g>
 
-      <path d="M840 148 H880" className="flow-connector" markerEnd="url(#flow-arrow-h)" />
+      <path d="M850 148 H890" className="flow-connector" markerEnd="url(#flow-arrow-h)" />
 
       <g
         className={stageClass('recommendations', current)}
         data-stage="Recommendations"
       >
-        <text x="890" y="28" className="flow-stage-label">
+        <text x="900" y="28" className="flow-stage-label">
           Recommendations
         </text>
-        <rect x="890" y="48" width="130" height="200" rx="4" className="flow-panel" />
+        <rect x="900" y="48" width="160" height="200" rx="4" className="flow-panel" />
         {showRecommendations
           ? snapshot.highlightedIds.map((id, index) => {
               const resource = getResource(id)
               const y = 68 + index * 44
               const primary = index === 0
-              const short = resource.title.split(' ').slice(0, 2).join(' ')
+              const short = shortTitle(resource.title)
               return (
                 <ResourceInteraction
                   key={id}
@@ -596,34 +611,34 @@ function DesktopDiagram({
                   onSelect={onSelect}
                   focusShape={{
                     type: 'rect',
-                    x: 908,
+                    x: 918,
                     y,
-                    width: 94,
+                    width: 124,
                     height: primary ? 36 : 28,
                     rx: 3,
                   }}
                 >
                   <rect
-                    x="908"
+                    x="918"
                     y={y}
-                    width="94"
+                    width="124"
                     height={primary ? 36 : 28}
                     rx="3"
                     className={primary ? 'flow-rec flow-rec--primary' : 'flow-rec'}
                   />
                   <text
-                    x="955"
+                    x="980"
                     y={y + (primary ? 22 : 18)}
                     textAnchor="middle"
                     className="flow-rec-label"
                   >
-                    {short.length > 12 ? `${short.slice(0, 11)}…` : short}
+                    {short}
                   </text>
                 </ResourceInteraction>
               )
             })
           : (
-            <text x="955" y="148" textAnchor="middle" className="flow-empty-hint">
+            <text x="980" y="148" textAnchor="middle" className="flow-empty-hint">
               waiting
             </text>
           )}
@@ -686,20 +701,20 @@ function MobileDiagram({
         {QUERY_TOKENS.slice(0, 3).map((token, index) => (
           <g key={token.id}>
             <rect
-              x={36 + index * 56}
+              x={36 + index * 82}
               y={108}
-              width={52}
+              width={76}
               height={18}
               rx={2}
               className="flow-token"
             />
             <text
-              x={62 + index * 56}
+              x={74 + index * 82}
               y={121}
               textAnchor="middle"
               className="flow-token-text"
             >
-              {token.label.length > 9 ? token.label.slice(0, 8) : token.label}
+              {token.label}
             </text>
           </g>
         ))}
@@ -782,7 +797,7 @@ function MobileDiagram({
               )
             })
           : (
-            <text x="160" y="490" textAnchor="middle" className="flow-empty-hint">
+            <text x="215" y="490" textAnchor="middle" className="flow-empty-hint">
               waiting
             </text>
           )}

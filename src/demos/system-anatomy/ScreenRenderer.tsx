@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from 'react'
 import type { SystemAnatomyRendererProps } from './types'
 
-const VIEWBOX = { width: 1080, height: 600 }
+const VIEWBOX = { width: 1060, height: 420 }
 
 function activateOnKey(event: KeyboardEvent<SVGGElement>, onSelect: () => void) {
   if (event.key === 'Enter' || event.key === ' ') {
