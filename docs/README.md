@@ -50,6 +50,12 @@ short orientation; the decisions and reusable methods live here.
   implementation, prior renderer findings, local ranking evidence, and GPU
   decision rule.
 
+## Investigation 06 — Spatial Computing Lab
+
+- [`spatial-lab-plan.md`](spatial-lab-plan.md) — the question, WebXR
+  capability states, three-slice scope, emulator-only limits, and validation
+  plan.
+
 ## How to add an investigation
 
 Create one document in this folder for the investigation as a whole. Keep its

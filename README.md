@@ -32,7 +32,9 @@ The investigation notes and reusable working method are in [`docs/`](docs/):
 - [`docs/material-lab-plan.md`](docs/material-lab-plan.md) — the completed
   material and shader investigation with its evidence and reuse decision;
 - [`docs/gpu-ranking-field-plan.md`](docs/gpu-ranking-field-plan.md) — the CPU
-  ranking baseline, prior renderer findings, and the GPU decision rule.
+  ranking baseline, prior renderer findings, and the GPU decision rule;
+- [`docs/spatial-lab-plan.md`](docs/spatial-lab-plan.md) — the planned WebXR
+  progressive-enhancement investigation and its emulator-only limits.
 
 ## Current experiment
 
